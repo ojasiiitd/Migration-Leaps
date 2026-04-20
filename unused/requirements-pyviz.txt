@@ -1,0 +1,5 @@
+panel>=1.4
+holoviews>=1.18
+hvplot>=0.10
+bokeh>=3.4
+pandas>=2.2

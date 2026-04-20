@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Migration Atlas | Sankey Explorer{% endblock %}
+
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div class="hero-card">
+      <span class="eyebrow">Story View 01</span>
+      <h1>Continent Sankey Explorer</h1>
+      <p class="hero-subtitle">
+        Compare major migration links between curated origin and destination continents. Use the year slider and country toggles
+        to follow how prominent migration pathways shift over time.
+      </p>
+    </div>
+  </section>
+
+  <section class="story-layout" id="sankey-app" data-endpoint="{{ url_for('sankey_data') }}">
+    <section class="panel-card viz-card">
+      <div class="viz-header">
+        <div class="viz-label">
+          <strong id="origin-label">Origin</strong>
+          <span>Countries shown on the left</span>
+        </div>
+        <div class="viz-summary" id="viz-summary">Loading migration flows...</div>
+        <div class="viz-label right">
+          <strong id="destination-label">Destination</strong>
+          <span>Countries shown on the right</span>
+        </div>
+      </div>
+      <svg id="chart" viewBox="0 0 1320 820" aria-label="Migration sankey diagram"></svg>
+    </section>
+
+    <section class="controls-grid">
+      <div class="panel-card">
+        <div class="control-title">Origin Continent</div>
+        <select id="origin-continent"></select>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Destination Continent</div>
+        <select id="destination-continent"></select>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Year</div>
+        <div class="slider-row">
+          <input id="year-slider" type="range" min="0" max="7" step="1" value="7">
+          <div class="value-chip" id="year-chip">2024</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="country-panel">
+      <div class="panel-card country-card">
+        <div class="country-head">
+          <h3 id="origin-title">Origin Countries</h3>
+          <span>Toggle which countries appear on the left</span>
+        </div>
+        <div class="chip-grid" id="origin-chips"></div>
+      </div>
+
+      <div class="panel-card country-card">
+        <div class="country-head">
+          <h3 id="destination-title">Destination Countries</h3>
+          <span>Toggle which countries appear on the right</span>
+        </div>
+        <div class="chip-grid" id="destination-chips"></div>
+      </div>
+    </section>
+  </section>
+
+  <div class="tooltip" id="tooltip"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/sankey.js') }}"></script>
+{% endblock %}

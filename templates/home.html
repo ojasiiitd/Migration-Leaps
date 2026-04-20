@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Migration Atlas | Home{% endblock %}
+
+{% block content %}
+  <section class="hero-panel">
+    <div class="hero-card">
+      <span class="eyebrow">Global Migration Storytelling</span>
+      <h1>International Migrant Stock 2024</h1>
+      <p class="hero-subtitle">
+        A Flask-based narrative dashboard for exploring how migration corridors evolved from 1990 to 2024.
+        Each visualization lives on its own endpoint so the project can grow into a connected story.
+      </p>
+      <div class="pill-row">
+        <span class="pill">UN dataset</span>
+        <span class="pill">1990-2024 snapshots</span>
+        <span class="pill">Country-to-country migration focus</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-grid">
+    <article class="panel-card panel-copy">
+      {% for paragraph in dataset_overview %}
+        {% if loop.first %}
+          <h2>{{ paragraph }}</h2>
+        {% else %}
+          <p>{{ paragraph }}</p>
+        {% endif %}
+      {% endfor %}
+    </article>
+
+    <aside class="panel-card panel-stats">
+      <h2>Dataset At A Glance</h2>
+      <div class="stats-grid">
+        <div class="stat-tile">
+          <strong>{{ summary.time_span }}</strong>
+          <span>Time span</span>
+        </div>
+        <div class="stat-tile">
+          <strong>{{ summary.snapshots }}</strong>
+          <span>Time snapshots</span>
+        </div>
+        <div class="stat-tile">
+          <strong>{{ "{:,}".format(summary.country_corridors) }}</strong>
+          <span>Country corridors in cleaned dataset</span>
+        </div>
+        <div class="stat-tile">
+          <strong>{{ summary.unique_origins }}</strong>
+          <span>Unique origin labels</span>
+        </div>
+        <div class="stat-tile">
+          <strong>{{ summary.unique_destinations }}</strong>
+          <span>Unique destination labels</span>
+        </div>
+        <div class="stat-tile">
+          <strong>{{ summary.curated_countries }}</strong>
+          <span>Curated countries in Sankey view</span>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="story-section">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Story Views</span>
+        <h2>Choose A Visualization</h2>
+      </div>
+      <p>
+        Start with the Sankey explorer below. We can add more views and story chapters to this Flask app as the project grows.
+      </p>
+    </div>
+
+    <div class="story-grid">
+      {% for view in story_views %}
+        <article class="story-card">
+          <span class="story-status">{{ view.status }}</span>
+          <h3>{{ view.title }}</h3>
+          <p>{{ view.description }}</p>
+          <a class="story-link" href="{{ url_for(view.endpoint) }}">Open view</a>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

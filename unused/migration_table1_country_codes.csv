@@ -1,0 +1,235 @@
+migration_location_code,migration_location_name,country_name,country_code,appears_as_destination,appears_as_origin
+4,Afghanistan,Afghanistan,AF,yes,yes
+8,Albania,Albania,AL,yes,yes
+12,Algeria,Algeria,DZ,yes,yes
+16,American Samoa*,American Samoa,AS,yes,yes
+20,Andorra,Andorra,AD,yes,yes
+24,Angola,Angola,AO,yes,yes
+28,Antigua and Barbuda,Antigua and Barbuda,AG,yes,yes
+31,Azerbaijan,Azerbaijan,AZ,yes,yes
+32,Argentina,Argentina,AR,yes,yes
+36,Australia*,Australia,AU,yes,yes
+40,Austria,Austria,AT,yes,yes
+44,Bahamas,Bahamas,BS,yes,yes
+48,Bahrain,Bahrain,BH,yes,yes
+50,Bangladesh,Bangladesh,BD,yes,yes
+51,Armenia,Armenia,AM,yes,yes
+52,Barbados,Barbados,BB,yes,yes
+56,Belgium,Belgium,BE,yes,yes
+60,Bermuda*,Bermuda,BM,yes,yes
+64,Bhutan,Bhutan,BT,yes,yes
+68,Bolivia (Plurinational State of),"Bolivia, Plurinational State of",BO,yes,yes
+70,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,yes,yes
+72,Botswana,Botswana,BW,yes,yes
+76,Brazil,Brazil,BR,yes,yes
+84,Belize,Belize,BZ,yes,yes
+90,Solomon Islands,Solomon Islands,SB,yes,yes
+92,British Virgin Islands*,"Virgin Islands, British",VG,yes,yes
+96,Brunei Darussalam,Brunei Darussalam,BN,yes,yes
+100,Bulgaria,Bulgaria,BG,yes,yes
+104,Myanmar,Myanmar,MM,yes,yes
+108,Burundi,Burundi,BI,yes,yes
+112,Belarus,Belarus,BY,yes,yes
+116,Cambodia,Cambodia,KH,yes,yes
+120,Cameroon,Cameroon,CM,yes,yes
+124,Canada,Canada,CA,yes,yes
+132,Cabo Verde,Cape Verde,CV,yes,yes
+136,Cayman Islands*,Cayman Islands,KY,yes,yes
+140,Central African Republic,Central African Republic,CF,yes,yes
+144,Sri Lanka,Sri Lanka,LK,yes,yes
+148,Chad,Chad,TD,yes,yes
+152,Chile,Chile,CL,yes,yes
+156,China,China,CN,yes,yes
+158,"China, Taiwan Province of China","Taiwan, Province of China",TW,yes,yes
+170,Colombia,Colombia,CO,yes,yes
+174,Comoros,Comoros,KM,yes,yes
+175,Mayotte,Mayotte,YT,yes,yes
+178,Congo,Congo,CG,yes,yes
+180,Democratic Republic of the Congo,"Congo, the Democratic Republic of the",CD,yes,yes
+184,Cook Islands*,Cook Islands,CK,yes,yes
+188,Costa Rica,Costa Rica,CR,yes,yes
+191,Croatia,Croatia,HR,yes,yes
+192,Cuba,Cuba,CU,yes,yes
+196,Cyprus,Cyprus,CY,yes,yes
+203,Czechia,Czech Republic,CZ,yes,yes
+204,Benin,Benin,BJ,yes,yes
+208,Denmark*,Denmark,DK,yes,yes
+212,Dominica,Dominica,DM,yes,yes
+214,Dominican Republic,Dominican Republic,DO,yes,yes
+218,Ecuador,Ecuador,EC,yes,yes
+222,El Salvador,El Salvador,SV,yes,yes
+226,Equatorial Guinea,Equatorial Guinea,GQ,yes,yes
+231,Ethiopia,Ethiopia,ET,yes,yes
+232,Eritrea,Eritrea,ER,yes,yes
+233,Estonia,Estonia,EE,yes,yes
+234,Faroe Islands*,Faroe Islands,FO,yes,yes
+238,Falkland Islands (Malvinas)*,Falkland Islands (Malvinas),FK,yes,yes
+242,Fiji,Fiji,FJ,yes,yes
+246,Finland*,Finland,FI,yes,yes
+250,France*,France,FR,yes,yes
+254,French Guiana*,French Guiana,GF,yes,yes
+258,French Polynesia*,French Polynesia,PF,yes,yes
+262,Djibouti,Djibouti,DJ,yes,yes
+266,Gabon,Gabon,GA,yes,yes
+268,Georgia,Georgia,GE,yes,yes
+270,Gambia,Gambia,GM,yes,yes
+275,State of Palestine,"Palestine, State of",PS,yes,yes
+276,Germany,Germany,DE,yes,yes
+288,Ghana,Ghana,GH,yes,yes
+292,Gibraltar*,Gibraltar,GI,yes,yes
+296,Kiribati,Kiribati,KI,yes,yes
+300,Greece,Greece,GR,yes,yes
+304,Greenland*,Greenland,GL,yes,yes
+308,Grenada,Grenada,GD,yes,yes
+312,Guadeloupe*,Guadeloupe,GP,yes,yes
+316,Guam*,Guam,GU,yes,yes
+320,Guatemala,Guatemala,GT,yes,yes
+324,Guinea,Guinea,GN,yes,yes
+328,Guyana,Guyana,GY,yes,yes
+332,Haiti,Haiti,HT,yes,yes
+336,Holy See*,Holy See (Vatican City State),VA,yes,yes
+340,Honduras,Honduras,HN,yes,yes
+344,"China, Hong Kong SAR",Hong Kong,HK,yes,yes
+348,Hungary,Hungary,HU,yes,yes
+352,Iceland,Iceland,IS,yes,yes
+356,India,India,IN,yes,yes
+360,Indonesia,Indonesia,ID,yes,yes
+364,Iran (Islamic Republic of),"Iran, Islamic Republic of",IR,yes,yes
+368,Iraq,Iraq,IQ,yes,yes
+372,Ireland,Ireland,IE,yes,yes
+376,Israel,Israel,IL,yes,yes
+380,Italy,Italy,IT,yes,yes
+384,Côte d'Ivoire,Côte d'Ivoire,CI,yes,yes
+388,Jamaica,Jamaica,JM,yes,yes
+392,Japan,Japan,JP,yes,yes
+398,Kazakhstan,Kazakhstan,KZ,yes,yes
+400,Jordan,Jordan,JO,yes,yes
+404,Kenya,Kenya,KE,yes,yes
+408,Dem. People's Republic of Korea,"Korea, Democratic People's Republic of",KP,yes,yes
+410,Republic of Korea,"Korea, Republic of",KR,yes,yes
+414,Kuwait,Kuwait,KW,yes,yes
+417,Kyrgyzstan,Kyrgyzstan,KG,yes,yes
+418,Lao People's Democratic Republic,Lao People's Democratic Republic,LA,yes,yes
+422,Lebanon,Lebanon,LB,yes,yes
+426,Lesotho,Lesotho,LS,yes,yes
+428,Latvia,Latvia,LV,yes,yes
+430,Liberia,Liberia,LR,yes,yes
+434,Libya,Libya,LY,yes,yes
+438,Liechtenstein,Liechtenstein,LI,yes,yes
+440,Lithuania,Lithuania,LT,yes,yes
+442,Luxembourg,Luxembourg,LU,yes,yes
+446,"China, Macao SAR",Macao,MO,yes,yes
+450,Madagascar,Madagascar,MG,yes,yes
+454,Malawi,Malawi,MW,yes,yes
+458,Malaysia,Malaysia,MY,yes,yes
+462,Maldives,Maldives,MV,yes,yes
+466,Mali,Mali,ML,yes,yes
+470,Malta,Malta,MT,yes,yes
+474,Martinique*,Martinique,MQ,yes,yes
+478,Mauritania,Mauritania,MR,yes,yes
+480,Mauritius,Mauritius,MU,yes,yes
+484,Mexico,Mexico,MX,yes,yes
+492,Monaco,Monaco,MC,yes,yes
+496,Mongolia,Mongolia,MN,yes,yes
+498,Republic of Moldova*,"Moldova, Republic of",MD,yes,yes
+499,Montenegro,Montenegro,ME,yes,yes
+500,Montserrat*,Montserrat,MS,yes,yes
+504,Morocco,Morocco,MA,yes,yes
+508,Mozambique,Mozambique,MZ,yes,yes
+512,Oman,Oman,OM,yes,yes
+516,Namibia,Namibia,NA,yes,yes
+520,Nauru,Nauru,NR,yes,yes
+524,Nepal,Nepal,NP,yes,yes
+528,Netherlands*,Netherlands,NL,yes,yes
+531,Curaçao*,Curaçao,CW,yes,yes
+533,Aruba*,Aruba,AW,yes,yes
+534,Sint Maarten (Dutch part)*,Sint Maarten (Dutch part),SX,yes,yes
+535,"Bonaire, Sint Eustatius and Saba*","Bonaire, Sint Eustatius and Saba",BQ,yes,yes
+540,New Caledonia*,New Caledonia,NC,yes,yes
+548,Vanuatu,Vanuatu,VU,yes,yes
+554,New Zealand*,New Zealand,NZ,yes,yes
+558,Nicaragua,Nicaragua,NI,yes,yes
+562,Niger,Niger,NE,yes,yes
+566,Nigeria,Nigeria,NG,yes,yes
+570,Niue*,Niue,NU,yes,yes
+578,Norway*,Norway,NO,yes,yes
+580,Northern Mariana Islands*,Northern Mariana Islands,MP,yes,yes
+583,Micronesia (Fed. States of),"Micronesia, Federated States of",FM,yes,yes
+584,Marshall Islands,Marshall Islands,MH,yes,yes
+585,Palau,Palau,PW,yes,yes
+586,Pakistan,Pakistan,PK,yes,yes
+591,Panama,Panama,PA,yes,yes
+598,Papua New Guinea,Papua New Guinea,PG,yes,yes
+600,Paraguay,Paraguay,PY,yes,yes
+604,Peru,Peru,PE,yes,yes
+608,Philippines,Philippines,PH,yes,yes
+616,Poland,Poland,PL,yes,yes
+620,Portugal,Portugal,PT,yes,yes
+624,Guinea-Bissau,Guinea-Bissau,GW,yes,yes
+626,Timor-Leste,Timor-Leste,TL,yes,yes
+630,Puerto Rico*,Puerto Rico,PR,yes,yes
+634,Qatar,Qatar,QA,yes,yes
+638,Réunion,Réunion,RE,yes,yes
+642,Romania,Romania,RO,yes,yes
+643,Russian Federation,Russian Federation,RU,yes,yes
+646,Rwanda,Rwanda,RW,yes,yes
+652,Saint Barthélemy*,Saint Barthélemy,BL,yes,no
+654,Saint Helena,"Saint Helena, Ascension and Tristan da Cunha",SH,yes,yes
+659,Saint Kitts and Nevis,Saint Kitts and Nevis,KN,yes,yes
+660,Anguilla*,Anguilla,AI,yes,yes
+662,Saint Lucia,Saint Lucia,LC,yes,yes
+663,Saint Martin (French part)*,Saint Martin (French part),MF,yes,no
+666,Saint Pierre and Miquelon*,Saint Pierre and Miquelon,PM,yes,yes
+670,Saint Vincent and the Grenadines,Saint Vincent and the Grenadines,VC,yes,yes
+674,San Marino,San Marino,SM,yes,yes
+678,Sao Tome and Principe,Sao Tome and Principe,ST,yes,yes
+682,Saudi Arabia,Saudi Arabia,SA,yes,yes
+686,Senegal,Senegal,SN,yes,yes
+688,Serbia*,Serbia,RS,yes,yes
+690,Seychelles,Seychelles,SC,yes,yes
+694,Sierra Leone,Sierra Leone,SL,yes,yes
+702,Singapore,Singapore,SG,yes,yes
+703,Slovakia,Slovakia,SK,yes,yes
+704,Viet Nam,Viet Nam,VN,yes,yes
+705,Slovenia,Slovenia,SI,yes,yes
+706,Somalia,Somalia,SO,yes,yes
+710,South Africa,South Africa,ZA,yes,yes
+716,Zimbabwe,Zimbabwe,ZW,yes,yes
+724,Spain*,Spain,ES,yes,yes
+728,South Sudan,South Sudan,SS,yes,yes
+729,Sudan,Sudan,SD,yes,yes
+732,Western Sahara,Western Sahara,EH,yes,yes
+740,Suriname,Suriname,SR,yes,yes
+748,Eswatini,Eswatini,SZ,yes,yes
+752,Sweden,Sweden,SE,yes,yes
+756,Switzerland,Switzerland,CH,yes,yes
+760,Syrian Arab Republic,Syrian Arab Republic,SY,yes,yes
+762,Tajikistan,Tajikistan,TJ,yes,yes
+764,Thailand,Thailand,TH,yes,yes
+768,Togo,Togo,TG,yes,yes
+772,Tokelau*,Tokelau,TK,yes,yes
+776,Tonga,Tonga,TO,yes,yes
+780,Trinidad and Tobago,Trinidad and Tobago,TT,yes,yes
+784,United Arab Emirates,United Arab Emirates,AE,yes,yes
+788,Tunisia,Tunisia,TN,yes,yes
+792,Türkiye,Turkey,TR,yes,yes
+795,Turkmenistan,Turkmenistan,TM,yes,yes
+796,Turks and Caicos Islands*,Turks and Caicos Islands,TC,yes,yes
+798,Tuvalu,Tuvalu,TV,yes,yes
+800,Uganda,Uganda,UG,yes,yes
+804,Ukraine*,Ukraine,UA,yes,yes
+807,North Macedonia,"Macedonia, the Former Yugoslav Republic of",MK,yes,yes
+818,Egypt,Egypt,EG,yes,yes
+826,United Kingdom*,United Kingdom,GB,yes,yes
+833,Isle of Man*,Isle of Man,IM,yes,yes
+834,United Republic of Tanzania,"Tanzania, United Republic of",TZ,yes,yes
+840,United States of America*,United States,US,yes,yes
+850,United States Virgin Islands*,"Virgin Islands, U.S.",VI,yes,yes
+854,Burkina Faso,Burkina Faso,BF,yes,yes
+858,Uruguay,Uruguay,UY,yes,yes
+860,Uzbekistan,Uzbekistan,UZ,yes,yes
+862,Venezuela (Bolivarian Republic of),"Venezuela, Bolivarian Republic of",VE,yes,yes
+876,Wallis and Futuna Islands*,Wallis and Futuna,WF,yes,yes
+882,Samoa,Samoa,WS,yes,yes
+887,Yemen,Yemen,YE,yes,yes
+894,Zambia,Zambia,ZM,yes,yes
