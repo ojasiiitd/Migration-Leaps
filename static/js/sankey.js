@@ -26,16 +26,12 @@
   const marginBottom = 18;
   const marginLeft = 220;
   const topLinks = 20;
-  const numberFormat = new Intl.NumberFormat("en-US");
 
-  const continentColors = {
-    Africa: "#b45309",
-    Asia: "#2563eb",
-    Europe: "#7c3aed",
-    "North America": "#0f766e",
-    "South America": "#dc2626",
-    Oceania: "#0891b2",
-  };
+  function approxFormat(n) {
+    if (n >= 10_000_000) return `~${(n / 10_000_000).toFixed(1)} Cr`;
+    if (n >= 100_000) return `~${(n / 100_000).toFixed(1)} L`;
+    return `~${n.toLocaleString("en-IN")}`;
+  }
 
   let data = null;
   let state = null;
@@ -198,7 +194,14 @@
     const totalFlow = rows.reduce((sum, row) => sum + row.value, 0);
     const graph = buildSankeyGraph(rows);
 
-    vizSummary.textContent = `${rows.length} links shown, ${numberFormat.format(totalFlow)} migrants in ${state.year}.`;
+    const palette = d3.schemeTableau10;
+    const countryColorMap = new Map(
+      graph.nodes
+        .filter((d) => d.side === "origin")
+        .map((d, i) => [d.country, palette[i % palette.length]])
+    );
+
+    vizSummary.textContent = `${rows.length} links shown, ${approxFormat(totalFlow)} migrants in ${state.year}.`;
     svg.selectAll("*").remove();
 
     svg
@@ -208,13 +211,13 @@
       .join("path")
       .attr("class", "link")
       .attr("d", d3.sankeyLinkHorizontal())
-      .attr("stroke", continentColors[state.originContinent])
+      .attr("stroke", (d) => countryColorMap.get(d.source.country))
       .attr("stroke-width", (d) => Math.max(1, d.width))
       .on("mousemove", (event, d) => {
         tooltip
           .style("opacity", 1)
           .html(
-            `<strong>${displayName(d.source.country)}</strong> → <strong>${displayName(d.target.country)}</strong><br>${numberFormat.format(d.value)} migrants in ${state.year}`,
+            `<strong>${displayName(d.source.country)}</strong> → <strong>${displayName(d.target.country)}</strong><br>${approxFormat(d.value)} migrants in ${state.year}`,
           )
           .style("left", `${event.clientX}px`)
           .style("top", `${event.clientY}px`);
@@ -231,24 +234,55 @@
       .attr("class", "node");
 
     node
+      .filter((d) => d.side === "origin")
       .append("rect")
       .attr("x", (d) => d.x0)
       .attr("y", (d) => d.y0)
       .attr("width", (d) => d.x1 - d.x0)
       .attr("height", (d) => Math.max(1, d.y1 - d.y0))
-      .attr(
-        "fill",
-        (d) => continentColors[d.side === "origin" ? state.originContinent : state.destinationContinent],
-      )
+      .attr("fill", (d) => countryColorMap.get(d.country))
       .on("mousemove", (event, d) => {
         tooltip
           .style("opacity", 1)
-          .html(`<strong>${d.label}</strong><br>${numberFormat.format(d.value)} total shown in ${state.year}`)
+          .html(`<strong>${d.label}</strong><br>${approxFormat(d.value)} total shown in ${state.year}`)
           .style("left", `${event.clientX}px`)
           .style("top", `${event.clientY}px`);
       })
       .on("mouseleave", () => {
         tooltip.style("opacity", 0);
+      });
+
+    node
+      .filter((d) => d.side === "destination")
+      .each(function (d) {
+        const g = d3.select(this);
+        const nodeWidth = d.x1 - d.x0;
+
+        d.targetLinks.forEach((link) => {
+          g.append("rect")
+            .attr("x", d.x0)
+            .attr("y", link.y1 - link.width / 2)
+            .attr("width", nodeWidth)
+            .attr("height", Math.max(1, link.width))
+            .attr("fill", countryColorMap.get(link.source.country));
+        });
+
+        g.append("rect")
+          .attr("x", d.x0)
+          .attr("y", d.y0)
+          .attr("width", nodeWidth)
+          .attr("height", Math.max(1, d.y1 - d.y0))
+          .attr("fill", "transparent")
+          .on("mousemove", (event) => {
+            tooltip
+              .style("opacity", 1)
+              .html(`<strong>${d.label}</strong><br>${approxFormat(d.value)} total shown in ${state.year}`)
+              .style("left", `${event.clientX}px`)
+              .style("top", `${event.clientY}px`);
+          })
+          .on("mouseleave", () => {
+            tooltip.style("opacity", 0);
+          });
       });
 
     node
@@ -265,7 +299,7 @@
       .attr("x", (d) => (d.side === "origin" ? d.x0 - 12 : d.x1 + 12))
       .attr("y", (d) => (d.y0 + d.y1) / 2 + 14)
       .attr("text-anchor", (d) => (d.side === "origin" ? "end" : "start"))
-      .text((d) => numberFormat.format(d.value));
+      .text((d) => approxFormat(d.value));
   }
 
   async function init() {

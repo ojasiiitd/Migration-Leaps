@@ -8,8 +8,7 @@
       <span class="eyebrow">Global Migration Storytelling</span>
       <h1>International Migrant Stock 2024</h1>
       <p class="hero-subtitle">
-        A Flask-based narrative dashboard for exploring how migration corridors evolved from 1990 to 2024.
-        Each visualization lives on its own endpoint so the project can grow into a connected story.
+        Exploring international migration patterns from 1990 to 2024 using United Nations bilateral corridor data across 233 countries and areas.
       </p>
       <div class="pill-row">
         <span class="pill">UN dataset</span>
@@ -34,30 +33,96 @@
       <h2>Dataset At A Glance</h2>
       <div class="stats-grid">
         <div class="stat-tile">
-          <strong>{{ summary.time_span }}</strong>
-          <span>Time span</span>
-        </div>
-        <div class="stat-tile">
-          <strong>{{ summary.snapshots }}</strong>
-          <span>Time snapshots</span>
+          <strong>{{ summary.countries_covered }}</strong>
+          <span>Countries &amp; areas covered</span>
         </div>
         <div class="stat-tile">
           <strong>{{ "{:,}".format(summary.country_corridors) }}</strong>
-          <span>Country corridors in cleaned dataset</span>
+          <span>Bilateral migration corridors tracked</span>
         </div>
         <div class="stat-tile">
-          <strong>{{ summary.unique_origins }}</strong>
-          <span>Unique origin labels</span>
+          <strong>{{ "{:,}".format(summary.active_corridors_2024) }}</strong>
+          <span>Corridors with active flows in 2024</span>
         </div>
         <div class="stat-tile">
-          <strong>{{ summary.unique_destinations }}</strong>
-          <span>Unique destination labels</span>
+          <strong>{{ summary.total_1990 | approx }}</strong>
+          <span>Total migrant stock in 1990</span>
         </div>
         <div class="stat-tile">
-          <strong>{{ summary.curated_countries }}</strong>
-          <span>Curated countries in Sankey view</span>
+          <strong>{{ summary.total_2024 | approx }}</strong>
+          <span>Total migrant stock in 2024</span>
+        </div>
+        <div class="stat-tile">
+          <strong>{{ "{:.1f}%".format(summary.growth_pct) }}</strong>
+          <span>Growth from 1990 to 2024</span>
         </div>
       </div>
+
+      <div class="stats-callouts">
+        <div class="callout-block">
+          <span class="callout-label">Top Origins In 2024</span>
+          {% for item in summary.top_3_origins_2024 %}
+            <div class="callout-rank-row">
+              <strong>{{ item.country }}</strong>
+              <small>{{ item.value | approx }}</small>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="callout-block">
+          <span class="callout-label">Top Destinations In 2024</span>
+          {% for item in summary.top_3_destinations_2024 %}
+            <div class="callout-rank-row">
+              <strong>{{ item.country }}</strong>
+              <small>{{ item.value | approx }}</small>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="home-grid detail-grid">
+    <article class="panel-card panel-trend">
+      <div class="section-head compact">
+        <div>
+          <span class="eyebrow">Trend Snapshot</span>
+          <h2>Global Migrant Stock Over Time</h2>
+        </div>
+        <p>
+          Migrant stock by year from the country-to-country dataset, broken down by sex.
+        </p>
+      </div>
+
+      <div class="trend-legend">
+        <span class="legend-swatch male"></span><span>Male</span>
+        <span class="legend-swatch female"></span><span>Female</span>
+      </div>
+
+      <div class="trend-list">
+        {% for item in summary.yearly_overview %}
+          <div class="trend-row">
+            <span class="trend-year">{{ item.year }}</span>
+            <div class="trend-bar">
+              <div class="trend-bar-fill male" style="width: {{ '%.2f'|format(item.male_bar_width) }}%"></div>
+              <div class="trend-bar-fill female" style="width: {{ '%.2f'|format(item.female_bar_width) }}%"></div>
+            </div>
+            <span class="trend-value">{{ item.total | approx }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </article>
+
+    <aside class="panel-card panel-copy">
+      <h2>About This Dataset</h2>
+      <p>
+        Metrics on this page are drawn from <strong>{{ summary.country_corridors | int | string }} bilateral corridors</strong> in the country-to-country extract — regional aggregates and income-group rollups are excluded to focus on direct country-pair flows.
+      </p>
+      <p>
+        The dataset covers <strong>{{ summary.snapshots }} time snapshots</strong> spaced roughly five years apart ({{ summary.time_span }}), allowing comparisons of how individual corridors have grown, shrunk, or emerged over three and a half decades.
+      </p>
+      <p>
+        Of the {{ summary.country_corridors | int | string }} corridors in the extract, <strong>{{ summary.active_corridors_2024 | int | string }} had measurable flows in 2024</strong>, meaning roughly {{ ((summary.active_corridors_2024 / summary.country_corridors) * 100) | round(0) | int }}% of all tracked pairs registered at least one migrant in the most recent snapshot.
+      </p>
     </aside>
   </section>
 
@@ -67,20 +132,15 @@
         <span class="eyebrow">Story Views</span>
         <h2>Choose A Visualization</h2>
       </div>
-      <p>
-        Start with the Sankey explorer below. We can add more views and story chapters to this Flask app as the project grows.
-      </p>
     </div>
-
-    <div class="story-grid">
-      {% for view in story_views %}
-        <article class="story-card">
-          <span class="story-status">{{ view.status }}</span>
-          <h3>{{ view.title }}</h3>
-          <p>{{ view.description }}</p>
-          <a class="story-link" href="{{ url_for(view.endpoint) }}">Open view</a>
-        </article>
-      {% endfor %}
+    <div class="panel-card story-dropdown-card">
+      <select id="viz-sel" class="story-select">
+        <option value="" disabled selected>Select a visualization…</option>
+        {% for view in story_views %}
+          <option value="{{ url_for(view.endpoint) }}">{{ view.title }}</option>
+        {% endfor %}
+      </select>
+      <button class="story-go-btn" onclick="var v=document.getElementById('viz-sel').value;if(v)window.location.href=v;">Open</button>
     </div>
   </section>
 {% endblock %}

@@ -134,6 +134,16 @@ DATASET_OVERVIEW = [
 app = Flask(__name__)
 
 
+@app.template_filter("approx")
+def approx_filter(n: int) -> str:
+    n = int(n)
+    if n >= 10_000_000:
+        return f"~{n / 10_000_000:.1f} Cr"
+    elif n >= 100_000:
+        return f"~{n / 100_000:.1f} L"
+    return f"~{n:,}"
+
+
 def parse_int(value: str) -> int:
     stripped = (value or "").strip()
     return int(stripped) if stripped.isdigit() else 0
@@ -152,6 +162,8 @@ def load_rows() -> list[dict]:
             cleaned = dict(row)
             for year in YEARS:
                 cleaned[f"{year}_total"] = parse_int(cleaned.get(f"{year}_total", "0"))
+                cleaned[f"{year}_males"] = parse_int(cleaned.get(f"{year}_males", "0"))
+                cleaned[f"{year}_females"] = parse_int(cleaned.get(f"{year}_females", "0"))
             rows.append(cleaned)
     return rows
 
@@ -161,14 +173,71 @@ def build_dataset_summary() -> dict:
     rows = load_rows()
     origins = {row[ORIGIN_COL] for row in rows}
     destinations = {row[DEST_COL] for row in rows}
+    countries = origins | destinations
+
+    totals_by_year  = {year: sum(row[f"{year}_total"]   for row in rows) for year in YEARS}
+    males_by_year   = {year: sum(row[f"{year}_males"]   for row in rows) for year in YEARS}
+    females_by_year = {year: sum(row[f"{year}_females"] for row in rows) for year in YEARS}
+
+    peak_year = max(YEARS, key=lambda year: totals_by_year[year])
+    start_total = totals_by_year[YEARS[0]]
+    end_total = totals_by_year[YEARS[-1]]
+    absolute_growth = end_total - start_total
+    growth_pct = (absolute_growth / start_total * 100) if start_total else 0
+
+    origin_2024 = {}
+    destination_2024 = {}
+    for row in rows:
+        origin_2024[row[ORIGIN_COL]] = origin_2024.get(row[ORIGIN_COL], 0) + row["2024_total"]
+        destination_2024[row[DEST_COL]] = destination_2024.get(row[DEST_COL], 0) + row["2024_total"]
+
+    top_origins_2024 = sorted(origin_2024.items(), key=lambda item: item[1], reverse=True)[:3]
+    top_destinations_2024 = sorted(destination_2024.items(), key=lambda item: item[1], reverse=True)[:3]
+    top_origin_2024 = top_origins_2024[0]
+    top_destination_2024 = top_destinations_2024[0]
+
+    active_corridors_2024 = sum(1 for row in rows if row["2024_total"] > 0)
+
+    yearly_overview = []
+    max_total = max(totals_by_year.values()) if totals_by_year else 0
+    for year in YEARS:
+        total   = totals_by_year[year]
+        males   = males_by_year[year]
+        females = females_by_year[year]
+        yearly_overview.append(
+            {
+                "year": year,
+                "total": total,
+                "males": males,
+                "females": females,
+                "bar_width":        (total   / max_total * 100) if max_total else 0,
+                "male_bar_width":   (males   / max_total * 100) if max_total else 0,
+                "female_bar_width": (females / max_total * 100) if max_total else 0,
+            }
+        )
 
     return {
         "time_span": "1990-2024",
         "snapshots": len(YEARS),
         "country_corridors": len(rows),
+        "countries_covered": len(countries),
         "unique_origins": len(origins),
         "unique_destinations": len(destinations),
         "curated_countries": sum(len(countries) for countries in CONTINENT_COUNTRIES.values()),
+        "total_1990": start_total,
+        "total_2024": end_total,
+        "absolute_growth": absolute_growth,
+        "growth_pct": growth_pct,
+        "peak_year": peak_year,
+        "top_origin_2024": {"country": display_name(top_origin_2024[0]), "value": top_origin_2024[1]},
+        "top_destination_2024": {
+            "country": display_name(top_destination_2024[0]),
+            "value": top_destination_2024[1],
+        },
+        "top_3_origins_2024": [{"country": display_name(c), "value": v} for c, v in top_origins_2024],
+        "top_3_destinations_2024": [{"country": display_name(c), "value": v} for c, v in top_destinations_2024],
+        "active_corridors_2024": active_corridors_2024,
+        "yearly_overview": yearly_overview,
     }
 
 
