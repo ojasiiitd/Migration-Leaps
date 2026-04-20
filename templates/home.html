@@ -2,6 +2,10 @@
 
 {% block title %}Migration Atlas | Home{% endblock %}
 
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+{% endblock %}
+
 {% block content %}
   <section class="hero-panel">
     <div class="hero-card">
@@ -117,6 +121,32 @@
     </aside>
   </section>
 
+  {# ── Dual-axis chart: migrants worldwide + share of population ── #}
+  <section class="home-grid detail-grid" style="margin-bottom:24px;">
+    <article class="panel-card" style="padding:28px;grid-column:1/-1;">
+      <div class="section-head compact">
+        <div>
+          <span class="eyebrow">Figure 3</span>
+          <h2>Number of international migrants worldwide and as a share of the global population, 1990–2024</h2>
+        </div>
+      </div>
+      <div id="dual-axis-chart" style="position:relative;width:100%;"></div>
+    </article>
+  </section>
+
+  {# ── Horizontal dot plot: 12 leading destination countries ── #}
+  <section class="home-grid detail-grid" style="margin-bottom:24px;">
+    <article class="panel-card" style="padding:28px;grid-column:1/-1;">
+      <div class="section-head compact">
+        <div>
+          <span class="eyebrow" style="color:var(--accent);">Figure 4</span>
+          <h2>Number of international migrants in the 12 leading countries of destination*, 1990–2024</h2>
+        </div>
+      </div>
+      <div id="dot-plot-chart" style="position:relative;width:100%;"></div>
+    </article>
+  </section>
+
   <section class="story-section">
     <div class="section-head">
       <div>
@@ -134,4 +164,12 @@
       <button class="story-go-btn" onclick="var v=document.getElementById('viz-sel').value;if(v)window.location.href=v;">Open</button>
     </div>
   </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.__GLOBAL_TREND__ = {{ global_trend_json | safe }};
+window.__LEADING_DEST__ = {{ leading_dest_json | safe }};
+</script>
+<script src="{{ url_for('static', filename='js/home_charts.js') }}"></script>
 {% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Migration Atlas | Choropleth Map{% endblock %}
+
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div class="hero-card">
+      <span class="eyebrow">Story View 02</span>
+      <h1>Choropleth Map</h1>
+      <p class="hero-subtitle">
+        World map colored by migration density — see which countries attract the most immigrants or send the most emigrants. Hover over a country to reveal its top 5 linked partners.
+      </p>
+    </div>
+  </section>
+
+  <section class="story-layout" id="choropleth-app" data-endpoint="{{ url_for('choropleth_data') }}">
+    <section class="panel-card viz-card">
+      <div class="viz-header">
+        <div class="viz-label">
+          <strong id="map-mode-label">Destination Density</strong>
+          <span id="map-subtitle">Countries colored by immigrants received</span>
+        </div>
+        <div class="viz-summary" id="viz-summary">Loading map…</div>
+        <div class="viz-label right">
+          <strong id="year-display">2024</strong>
+          <span id="gender-display">All genders</span>
+        </div>
+      </div>
+      <div id="choropleth-map" style="position:relative;">
+        <svg id="map-svg" viewBox="0 0 960 500" style="width:100%;height:auto;max-height:65vh;" aria-label="Choropleth migration map"></svg>
+        <div id="map-legend" class="map-legend"></div>
+      </div>
+    </section>
+
+    <section class="controls-grid">
+      <div class="panel-card">
+        <div class="control-title">Mode</div>
+        <div class="chip-group-row">
+          <button class="mode-chip active" data-mode="destination">Destination (inflow)</button>
+          <button class="mode-chip" data-mode="origin">Origin (outflow)</button>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Year</div>
+        <div class="slider-row">
+          <input id="year-slider" type="range" min="0" max="7" step="1" value="7">
+          <div class="value-chip" id="year-chip">2024</div>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Gender</div>
+        <div class="chip-group-row">
+          <button class="gender-chip active" data-gender="total">All</button>
+          <button class="gender-chip" data-gender="males">Male</button>
+          <button class="gender-chip" data-gender="females">Female</button>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <div class="tooltip" id="tooltip"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/choropleth.js') }}"></script>
+{% endblock %}

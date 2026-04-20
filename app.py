@@ -11,6 +11,7 @@ from flask import Flask, jsonify, render_template
 
 BASE_DIR = Path(__file__).resolve().parent
 DATASET_PATH = BASE_DIR / "migration_table1_countries_clean.csv"
+POPULATION_PATH = BASE_DIR / "population_cleaned.csv"
 
 YEARS = ["1990", "1995", "2000", "2005", "2010", "2015", "2020", "2024"]
 ORIGIN_COL = "Region, development group, country or area of origin"
@@ -40,6 +41,7 @@ CONTINENT_COUNTRIES = {
         "Saudi Arabia",
         "United Arab Emirates",
         "Philippines",
+        "Russian Federation",
     ],
     "Europe": [
         "Germany",
@@ -89,6 +91,10 @@ CONTINENT_COUNTRIES = {
         "Micronesia (Fed. States of)",
         "Palau",
     ],
+}
+
+CROSS_CONTINENT = {
+    "Russian Federation": ["Asia", "Europe"],
 }
 
 DISPLAY_NAMES = {
@@ -151,6 +157,24 @@ def parse_int(value: str) -> int:
 
 def display_name(country: str) -> str:
     return DISPLAY_NAMES.get(country, country)
+
+
+@lru_cache(maxsize=1)
+def load_population() -> dict[str, int]:
+    """Returns {year_str: global_population} using the 'World' aggregate row."""
+    totals: dict[str, int] = {}
+    with POPULATION_PATH.open(newline="", encoding="utf-8-sig") as handle:
+        reader = csv.DictReader(handle)
+        for row in reader:
+            if row.get("Country Name", "").strip() != "World":
+                continue
+            year = str(int(float(row["Year"])))
+            try:
+                val = int(float(row["Value"]))
+            except (ValueError, KeyError):
+                val = 0
+            totals[year] = val
+    return totals
 
 
 @lru_cache(maxsize=1)
@@ -244,11 +268,17 @@ def build_dataset_summary() -> dict:
 @lru_cache(maxsize=1)
 def build_sankey_payload() -> dict:
     country_meta = {}
+    country_continents: dict[str, list[str]] = {}
     for continent, countries in CONTINENT_COUNTRIES.items():
         for country in countries:
+            if country not in country_continents:
+                country_continents[country] = []
+            country_continents[country].append(continent)
             country_meta[country] = {
-                "continent": continent,
+                "continent": country_continents[country][0],
+                "continents": country_continents[country],
                 "label": display_name(country),
+                "cross_continent": country in CROSS_CONTINENT,
             }
 
     selected_countries = set(country_meta)
@@ -267,8 +297,8 @@ def build_sankey_payload() -> dict:
             {
                 "source": source,
                 "target": target,
-                "origin_continent": country_meta[source]["continent"],
-                "destination_continent": country_meta[target]["continent"],
+                "origin_continents": country_continents[source],
+                "destination_continents": country_continents[target],
                 "values": values,
             }
         )
@@ -277,7 +307,80 @@ def build_sankey_payload() -> dict:
         "years": YEARS,
         "continent_countries": CONTINENT_COUNTRIES,
         "country_meta": country_meta,
+        "cross_continent": CROSS_CONTINENT,
         "corridors": corridors,
+    }
+
+
+@lru_cache(maxsize=1)
+def build_choropleth_payload() -> dict:
+    rows = load_rows()
+    result: dict[str, dict] = {}
+
+    for row in rows:
+        origin = row[ORIGIN_COL]
+        dest = row[DEST_COL]
+        for year in YEARS:
+            key_o = f"{origin}||{year}"
+            if key_o not in result:
+                result[key_o] = {"country": origin, "year": year, "outflow_total": 0, "outflow_males": 0, "outflow_females": 0, "inflow_total": 0, "inflow_males": 0, "inflow_females": 0}
+            result[key_o]["outflow_total"] += row[f"{year}_total"]
+            result[key_o]["outflow_males"] += row[f"{year}_males"]
+            result[key_o]["outflow_females"] += row[f"{year}_females"]
+
+            key_d = f"{dest}||{year}"
+            if key_d not in result:
+                result[key_d] = {"country": dest, "year": year, "outflow_total": 0, "outflow_males": 0, "outflow_females": 0, "inflow_total": 0, "inflow_males": 0, "inflow_females": 0}
+            result[key_d]["inflow_total"] += row[f"{year}_total"]
+            result[key_d]["inflow_males"] += row[f"{year}_males"]
+            result[key_d]["inflow_females"] += row[f"{year}_females"]
+
+    return {
+        "years": YEARS,
+        "records": list(result.values()),
+    }
+
+
+@lru_cache(maxsize=1)
+def build_netflow_payload() -> dict:
+    rows = load_rows()
+    data: dict[str, dict[str, dict]] = {}
+
+    # Build country->continent mapping
+    country_to_continent: dict[str, str] = {}
+    for continent, countries in CONTINENT_COUNTRIES.items():
+        for c in countries:
+            if c not in country_to_continent:
+                country_to_continent[c] = continent
+
+    for row in rows:
+        origin = row[ORIGIN_COL]
+        dest = row[DEST_COL]
+        for year in YEARS:
+            for country in [origin, dest]:
+                if country not in data:
+                    data[country] = {y: {"inflow": 0, "outflow": 0} for y in YEARS}
+            data[origin][year]["outflow"] += row[f"{year}_total"]
+            data[dest][year]["inflow"] += row[f"{year}_total"]
+
+    records = []
+    for country, years_data in data.items():
+        region = country_to_continent.get(country, "Other")
+        for year, vals in years_data.items():
+            net = vals["inflow"] - vals["outflow"]
+            records.append({
+                "country": display_name(country),
+                "country_raw": country,
+                "year": year,
+                "region": region,
+                "inflow": vals["inflow"],
+                "outflow": vals["outflow"],
+                "net": net,
+            })
+
+    return {
+        "years": YEARS,
+        "records": records,
     }
 
 
@@ -287,8 +390,72 @@ def inject_navigation():
         "nav_views": [
             {"label": "Home", "endpoint": "home"},
             {"label": "Sankey Explorer", "endpoint": "sankey_view"},
+            {"label": "Choropleth Map", "endpoint": "choropleth_view"},
+            {"label": "Net Migration", "endpoint": "netflow_view"},
         ]
     }
+
+
+def build_global_trend_data() -> list[dict]:
+    """Yearly migrant stock + population share for dual-axis chart (all years 1990-2024)."""
+    rows = load_rows()
+    pop = load_population()
+
+    # All years in dataset
+    all_years = [str(y) for y in range(1990, 2025)]
+    # Migrant totals only for snapshot years
+    migrant_snap = {year: sum(row[f"{year}_total"] for row in rows) for year in YEARS}
+
+    result = []
+    for year in all_years:
+        migrants = migrant_snap.get(year)
+        population = pop.get(year, 0)
+        pct = (migrants / population * 100) if (migrants and population) else None
+        result.append({
+            "year": int(year),
+            "migrants": migrants,
+            "population": population,
+            "pct": round(pct, 2) if pct is not None else None,
+        })
+    return result
+
+
+def build_leading_destinations_data() -> dict:
+    """Migrant stock in millions for 12 leading destination countries across 5 years."""
+    rows = load_rows()
+    target_years = ["1990", "2000", "2010", "2020", "2024"]
+    countries = [
+        "United States of America*",
+        "Germany",
+        "Saudi Arabia",
+        "United Kingdom*",
+        "France*",
+        "Spain*",
+        "Canada",
+        "United Arab Emirates",
+        "Australia*",
+        "Russian Federation",
+        "Türkiye",
+        "Italy",
+    ]
+
+    # Sum inflows (as destination) per country per year
+    dest_totals: dict[str, dict[str, int]] = {c: {y: 0 for y in target_years} for c in countries}
+    for row in rows:
+        dest = row[DEST_COL]
+        for c in countries:
+            if dest == c:
+                for y in target_years:
+                    dest_totals[c][y] += row[f"{y}_total"]
+
+    result = []
+    for c in countries:
+        label = DISPLAY_NAMES.get(c, c)
+        result.append({
+            "country": label,
+            "values": {y: round(dest_totals[c][y] / 1_000_000, 2) for y in target_years},
+        })
+    return {"countries": result, "years": target_years}
 
 
 @app.route("/")
@@ -302,14 +469,32 @@ def home():
             ),
             "endpoint": "sankey_view",
             "status": "Available now",
-        }
+        },
+        {
+            "title": "Choropleth Map",
+            "description": "World map colored by immigrant or emigrant density, with year and gender filters.",
+            "endpoint": "choropleth_view",
+            "status": "Available now",
+        },
+        {
+            "title": "Net Migration Balance",
+            "description": "Bar chart of top net gainers and losers by year and region.",
+            "endpoint": "netflow_view",
+            "status": "Available now",
+        },
     ]
+
+    import json
+    global_trend = build_global_trend_data()
+    leading_dest = build_leading_destinations_data()
 
     return render_template(
         "home.html",
         dataset_overview=DATASET_OVERVIEW,
         summary=build_dataset_summary(),
         story_views=story_views,
+        global_trend_json=json.dumps(global_trend),
+        leading_dest_json=json.dumps(leading_dest),
         body_class="home-page",
     )
 
@@ -319,9 +504,29 @@ def sankey_view():
     return render_template("sankey.html", body_class="sankey-page")
 
 
+@app.route("/views/choropleth")
+def choropleth_view():
+    return render_template("choropleth.html", body_class="choropleth-page")
+
+
+@app.route("/views/netflow")
+def netflow_view():
+    return render_template("netflow.html", body_class="netflow-page")
+
+
 @app.route("/api/sankey-data")
 def sankey_data():
     return jsonify(build_sankey_payload())
+
+
+@app.route("/api/choropleth-data")
+def choropleth_data():
+    return jsonify(build_choropleth_payload())
+
+
+@app.route("/api/netflow-data")
+def netflow_data():
+    return jsonify(build_netflow_payload())
 
 
 if __name__ == "__main__":

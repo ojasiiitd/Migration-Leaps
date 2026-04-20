@@ -63,28 +63,67 @@
     });
   }
 
+  function getCountriesForContinent(continent) {
+    return data.continent_countries[continent].filter((c) => {
+      const meta = data.country_meta[c];
+      if (!meta.cross_continent) return true;
+      // cross-continent countries: include only if toggled in
+      return state.crossContinentEnabled.has(c);
+    });
+  }
+
   function setContinentSelection(side, continent) {
     if (side === "origin") {
       state.originContinent = continent;
-      state.selectedOrigins = new Set(data.continent_countries[continent]);
+      state.selectedOrigins = new Set(getCountriesForContinent(continent));
     } else {
       state.destinationContinent = continent;
-      state.selectedDestinations = new Set(data.continent_countries[continent]);
+      state.selectedDestinations = new Set(getCountriesForContinent(continent));
     }
   }
 
-  function renderChipGroup(container, countries, selectedSet) {
+  function renderChipGroup(container, countries, selectedSet, side) {
     container.innerHTML = "";
-    countries.forEach((country) => {
+    const continent = side === "origin" ? state.originContinent : state.destinationContinent;
+    const allForContinent = data.continent_countries[continent];
+
+    allForContinent.forEach((country) => {
+      const meta = data.country_meta[country];
+      const isCross = meta.cross_continent;
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "country-chip" + (selectedSet.has(country) ? " active" : "");
+
+      const isEnabled = isCross ? state.crossContinentEnabled.has(country) : true;
+      const isSelected = selectedSet.has(country);
+
+      button.className = "country-chip" + (isSelected && isEnabled ? " active" : "");
+
+      if (isCross) {
+        button.className += " cross-continent-chip";
+        button.title = `${displayName(country)} spans multiple continents (${meta.continents.join(" & ")}). Click to toggle inclusion.`;
+      }
+
       button.textContent = displayName(country);
+      if (isCross) {
+        button.textContent += " ↔";
+      }
+
       button.addEventListener("click", () => {
-        if (selectedSet.has(country) && selectedSet.size > 1) {
-          selectedSet.delete(country);
-        } else if (!selectedSet.has(country)) {
-          selectedSet.add(country);
+        if (isCross) {
+          // Toggle cross-continent membership for this continent
+          if (state.crossContinentEnabled.has(country)) {
+            state.crossContinentEnabled.delete(country);
+            selectedSet.delete(country);
+          } else {
+            state.crossContinentEnabled.add(country);
+            selectedSet.add(country);
+          }
+        } else {
+          if (selectedSet.has(country) && selectedSet.size > 1) {
+            selectedSet.delete(country);
+          } else if (!selectedSet.has(country)) {
+            selectedSet.add(country);
+          }
         }
         renderControls();
         renderChart();
@@ -95,9 +134,6 @@
 
   function renderControls() {
     const continents = Object.keys(data.continent_countries);
-    const originCountries = data.continent_countries[state.originContinent];
-    const destinationCountries = data.continent_countries[state.destinationContinent];
-
     populateSelect(originSelect, continents, state.originContinent);
     populateSelect(destinationSelect, continents, state.destinationContinent);
 
@@ -107,14 +143,14 @@
     originLabel.textContent = state.originContinent;
     destinationLabel.textContent = state.destinationContinent;
 
-    renderChipGroup(originChips, originCountries, state.selectedOrigins);
-    renderChipGroup(destinationChips, destinationCountries, state.selectedDestinations);
+    renderChipGroup(originChips, data.continent_countries[state.originContinent], state.selectedOrigins, "origin");
+    renderChipGroup(destinationChips, data.continent_countries[state.destinationContinent], state.selectedDestinations, "destination");
   }
 
   function filteredCorridors() {
     return data.corridors
-      .filter((row) => row.origin_continent === state.originContinent)
-      .filter((row) => row.destination_continent === state.destinationContinent)
+      .filter((row) => row.origin_continents.includes(state.originContinent))
+      .filter((row) => row.destination_continents.includes(state.destinationContinent))
       .filter((row) => state.selectedOrigins.has(row.source))
       .filter((row) => state.selectedDestinations.has(row.target))
       .map((row) => ({
@@ -310,13 +346,24 @@
       }
 
       data = await response.json();
+
+      // Cross-continent countries start toggled OFF by default
       state = {
         originContinent: "Asia",
         destinationContinent: "North America",
         year: data.years[data.years.length - 1],
-        selectedOrigins: new Set(data.continent_countries["Asia"]),
-        selectedDestinations: new Set(data.continent_countries["North America"]),
+        crossContinentEnabled: new Set(),
+        selectedOrigins: new Set(),
+        selectedDestinations: new Set(),
       };
+
+      // Populate initial selections (excluding cross-continent by default)
+      state.selectedOrigins = new Set(
+        data.continent_countries["Asia"].filter((c) => !data.country_meta[c].cross_continent)
+      );
+      state.selectedDestinations = new Set(
+        data.continent_countries["North America"].filter((c) => !data.country_meta[c].cross_continent)
+      );
 
       yearSlider.max = String(data.years.length - 1);
       yearSlider.value = String(data.years.length - 1);

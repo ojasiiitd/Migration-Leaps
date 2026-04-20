@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Migration Atlas | Net Migration{% endblock %}
+
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div class="hero-card">
+      <span class="eyebrow">Story View 03</span>
+      <h1>Net Migration Balance</h1>
+      <p class="hero-subtitle">
+        Net migration = inflow − outflow. Positive values indicate net immigration gains; negative values reflect net emigration losses. Explore brain drain patterns, migration hubs, and how countries' balances shift over time.
+      </p>
+    </div>
+  </section>
+
+  <section class="story-layout" id="netflow-app" data-endpoint="{{ url_for('netflow_data') }}">
+    <section class="panel-card viz-card">
+      <div class="viz-header">
+        <div class="viz-label">
+          <strong id="chart-mode-label">Top Gainers &amp; Losers</strong>
+          <span id="chart-subtitle">Countries with highest net immigration or emigration</span>
+        </div>
+        <div class="viz-summary" id="viz-summary">Loading…</div>
+        <div class="viz-label right">
+          <strong id="year-display">2024</strong>
+          <span id="region-display">All regions</span>
+        </div>
+      </div>
+      <svg id="netflow-chart" viewBox="0 0 1200 600" style="width:100%;height:auto;max-height:65vh;" aria-label="Net migration bar chart"></svg>
+    </section>
+
+    <section class="controls-grid">
+      <div class="panel-card">
+        <div class="control-title">Year</div>
+        <div class="slider-row">
+          <input id="year-slider" type="range" min="0" max="7" step="1" value="7">
+          <div class="value-chip" id="year-chip">2024</div>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Sort By</div>
+        <div class="chip-group-row">
+          <button class="sort-chip active" data-sort="magnitude">Magnitude</button>
+          <button class="sort-chip" data-sort="gainers">Top Gainers</button>
+          <button class="sort-chip" data-sort="losers">Top Losers</button>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Region Filter</div>
+        <select id="region-select" class="region-select">
+          <option value="all">All regions</option>
+          <option value="Africa">Africa</option>
+          <option value="Asia">Asia</option>
+          <option value="Europe">Europe</option>
+          <option value="North America">North America</option>
+          <option value="South America">South America</option>
+          <option value="Oceania">Oceania</option>
+        </select>
+      </div>
+    </section>
+  </section>
+
+  <div class="tooltip" id="tooltip"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/netflow.js') }}"></script>
+{% endblock %}
