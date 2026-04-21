@@ -24,6 +24,7 @@
 
   let lookup = {};
   let normalizedLookup = {};
+  let topPartnersLookup = {}; // normalizedCountryName -> {year -> {inflow, outflow}}
 
   function normalizeName(name) {
     return (name || "")
@@ -45,6 +46,14 @@
     Object.keys(lookup).forEach((name) => {
       normalizedLookup[normalizeName(name)] = name;
     });
+
+    // Build top partners lookup keyed by normalized name for geo matching
+    topPartnersLookup = {};
+    if (apiData.top_partners) {
+      Object.entries(apiData.top_partners).forEach(([rawName, yearsData]) => {
+        topPartnersLookup[normalizeName(rawName)] = yearsData;
+      });
+    }
   }
 
   function matchName(geoName) {
@@ -144,13 +153,31 @@
         const val = matched ? getVal(matched) : 0;
 
         const label = state.mode === "destination" ? "Immigrants" : "Emigrants";
+        const partnerKey = normalizeName(matched || geoName);
+        const partnersData = topPartnersLookup[partnerKey]?.[state.year];
+        const partnerList = partnersData
+          ? (state.mode === "destination" ? partnersData.inflow : partnersData.outflow)
+          : [];
+
+        let partnersHtml = "";
+        if (partnerList && partnerList.length > 0) {
+          const partnerLabel = state.mode === "destination" ? "Top origins" : "Top destinations";
+          partnersHtml =
+            `<div style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.2);padding-top:5px;">` +
+            `<div style="font-size:0.78rem;color:rgba(255,255,255,0.65);margin-bottom:3px;">${partnerLabel}:</div>` +
+            partnerList.map((p, i) =>
+              `<div style="display:flex;justify-content:space-between;gap:12px;font-size:0.82rem;">` +
+              `<span>${i + 1}. ${p.country}</span><span style="color:#86efac;">${approxFormat(p.value)}</span></div>`
+            ).join("") +
+            `</div>`;
+        }
+
         tooltip
           .style("opacity", 1)
           .html(
             `<strong>${geoName}</strong><br>` +
-            (val > 0
-              ? `${label}: <strong>${approxFormat(val)}</strong>`
-              : `No data`)
+            (val > 0 ? `${label}: <strong>${approxFormat(val)}</strong>` : `No data`) +
+            partnersHtml
           )
           .style("left", `${event.clientX + 14}px`)
           .style("top", `${event.clientY + 14}px`);

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Migration Atlas | Dashboard{% endblock %}
+
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-header" style="padding-bottom:12px;">
+    <div class="hero-card" style="padding:20px 28px;">
+      <span class="eyebrow">Combined Dashboard</span>
+      <h1 style="font-size:clamp(1.6rem,3vw,2.8rem);">Linked Migration Explorer</h1>
+      <p class="hero-subtitle" style="margin-top:8px;font-size:0.95rem;">
+        Hover or click any country to highlight it across all three views. Year, gender, and corridor filters sync globally.
+      </p>
+    </div>
+  </section>
+
+  {# ── Global controls ── #}
+  <div class="db-global-controls panel-card" id="dashboard-app"
+    data-sankey="{{ url_for('sankey_data') }}"
+    data-choropleth="{{ url_for('choropleth_data') }}"
+    data-netflow="{{ url_for('netflow_data') }}">
+
+    {# Row 1: corridor + year + gender + mode #}
+    <div class="db-controls-row">
+      <div class="db-control-group db-corridor-group">
+        <span class="db-ctrl-label">Migration Corridor</span>
+        <div class="db-corridor-row">
+          <select id="db-origin-continent" class="db-mini-select"></select>
+          <span class="db-arrow">→</span>
+          <select id="db-dest-continent" class="db-mini-select"></select>
+        </div>
+      </div>
+
+      <div class="db-control-group">
+        <span class="db-ctrl-label">Year</span>
+        <div class="slider-row">
+          <input id="db-year-slider" type="range" min="0" max="7" step="1" value="7">
+          <div class="value-chip" id="db-year-chip">2024</div>
+        </div>
+      </div>
+
+      <div class="db-control-group">
+        <span class="db-ctrl-label">Gender</span>
+        <div class="chip-group-row">
+          <button class="gender-chip active" data-gender="total">All</button>
+          <button class="gender-chip" data-gender="males">Male</button>
+          <button class="gender-chip" data-gender="females">Female</button>
+        </div>
+      </div>
+
+      <div class="db-control-group">
+        <span class="db-ctrl-label">Map Mode</span>
+        <div class="chip-group-row">
+          <button class="mode-chip active" data-mode="destination">Inflow</button>
+          <button class="mode-chip" data-mode="origin">Outflow</button>
+        </div>
+      </div>
+
+      <div class="db-control-group">
+        <span class="db-ctrl-label">Net Flow Sort</span>
+        <div class="chip-group-row">
+          <button class="sort-chip active" data-sort="magnitude">Magnitude</button>
+          <button class="sort-chip" data-sort="gainers">Gainers</button>
+          <button class="sort-chip" data-sort="losers">Losers</button>
+        </div>
+      </div>
+
+      <div class="db-control-group db-selection-info">
+        <span class="db-ctrl-label">Selected <span id="db-sel-count" style="color:var(--muted);font-weight:normal;">(click any country)</span></span>
+        <div id="db-selection-display" class="db-selection-chips"></div>
+        <button id="db-clear-btn" class="db-clear-btn" style="display:none;">Clear ✕</button>
+      </div>
+    </div>
+  </div>
+
+  {# ── 3-panel layout ── #}
+  <div class="db-layout">
+
+    {# Top row: Sankey (left, 58%) + Map (right, 42%) #}
+    <div class="db-top-row">
+      <section class="panel-card db-panel db-sankey-panel">
+        <div class="db-panel-header">
+          <div>
+            <span class="eyebrow" style="margin-bottom:2px;">Flow Diagram</span>
+            <strong class="db-panel-title">Sankey Explorer</strong>
+          </div>
+          <div id="db-sankey-summary" class="db-summary-line" style="margin-left:auto;text-align:right;"></div>
+        </div>
+        <svg id="db-sankey-chart" viewBox="0 0 1000 560" style="width:100%;height:auto;"></svg>
+      </section>
+
+      <section class="panel-card db-panel db-map-panel">
+        <div class="db-panel-header">
+          <div>
+            <span class="eyebrow" style="margin-bottom:2px;">World Map</span>
+            <strong class="db-panel-title" id="db-map-mode-label">Destination Density</strong>
+          </div>
+          <div id="db-map-summary" class="db-summary-line" style="margin-left:auto;text-align:right;font-size:0.78rem;max-width:200px;"></div>
+        </div>
+        <div style="position:relative;">
+          <svg id="db-map-svg" viewBox="0 0 960 500" style="width:100%;height:auto;"></svg>
+          <div id="db-map-legend" class="map-legend"></div>
+        </div>
+        <div id="db-continent-legend" class="db-continent-legend"></div>
+      </section>
+    </div>
+
+    {# Bottom: Net flow full width, shows origin + dest continents #}
+    <section class="panel-card db-panel db-netflow-panel">
+      <div class="db-panel-header">
+        <div>
+          <span class="eyebrow" style="margin-bottom:2px;">Balance Chart</span>
+          <strong class="db-panel-title">Net Migration — <span id="db-netflow-corridor-label">Corridor Countries</span></strong>
+        </div>
+        <div id="db-netflow-summary" class="db-summary-line" style="margin-left:auto;"></div>
+      </div>
+      <svg id="db-netflow-chart" viewBox="0 0 1400 360" style="width:100%;height:auto;"></svg>
+    </section>
+  </div>
+
+  <div class="tooltip" id="db-tooltip"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

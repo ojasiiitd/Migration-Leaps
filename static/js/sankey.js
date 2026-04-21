@@ -147,16 +147,19 @@
     renderChipGroup(destinationChips, data.continent_countries[state.destinationContinent], state.selectedDestinations, "destination");
   }
 
+  function getCorridorValue(row) {
+    if (state.gender === "males") return row.values_males?.[state.year] || 0;
+    if (state.gender === "females") return row.values_females?.[state.year] || 0;
+    return row.values[state.year] || 0;
+  }
+
   function filteredCorridors() {
     return data.corridors
       .filter((row) => row.origin_continents.includes(state.originContinent))
       .filter((row) => row.destination_continents.includes(state.destinationContinent))
       .filter((row) => state.selectedOrigins.has(row.source))
       .filter((row) => state.selectedDestinations.has(row.target))
-      .map((row) => ({
-        ...row,
-        value: row.values[state.year] || 0,
-      }))
+      .map((row) => ({ ...row, value: getCorridorValue(row) }))
       .filter((row) => row.value > 0)
       .sort((a, b) => b.value - a.value)
       .slice(0, topLinks);
@@ -352,6 +355,7 @@
         originContinent: "Asia",
         destinationContinent: "North America",
         year: data.years[data.years.length - 1],
+        gender: "total",
         crossContinentEnabled: new Set(),
         selectedOrigins: new Set(),
         selectedDestinations: new Set(),
@@ -393,6 +397,15 @@
     state.year = data.years[Number(event.target.value)];
     renderControls();
     renderChart();
+  });
+
+  document.querySelectorAll(".gender-chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".gender-chip").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.gender = btn.dataset.gender;
+      renderChart();
+    });
   });
 
   init();

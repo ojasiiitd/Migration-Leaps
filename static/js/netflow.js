@@ -31,11 +31,17 @@
   }
 
   function getFilteredRecords() {
-    return apiData.records.filter(
+    const filtered = apiData.records.filter(
       (r) =>
         r.year === state.year &&
         (state.region === "all" || r.region === state.region)
     );
+    // Deduplicate by country name (cross-continent countries appear multiple times)
+    const seen = new Map();
+    filtered.forEach((r) => {
+      if (!seen.has(r.country)) seen.set(r.country, r);
+    });
+    return Array.from(seen.values());
   }
 
   function getSortedBars() {
@@ -69,11 +75,11 @@
     }
 
     const vw = 1200;
-    const vh = 600;
+    const vh = 620;
     const marginLeft = 180;
     const marginRight = 40;
     const marginTop = 30;
-    const marginBottom = 30;
+    const marginBottom = 50;
 
     const svg = d3.select(svgEl);
     svg.selectAll("*").remove();
@@ -191,11 +197,11 @@
           });
       });
 
-    // Legend
-    const legendG = svg.append("g").attr("transform", `translate(${vw - marginRight - 120},${marginTop})`);
-    [[COLOR_GAIN, "Net gain"], [COLOR_LOSS, "Net loss"]].forEach(([color, label], i) => {
-      legendG.append("rect").attr("x", 0).attr("y", i * 22).attr("width", 14).attr("height", 14).attr("fill", color).attr("rx", 3).attr("opacity", 0.85);
-      legendG.append("text").attr("x", 20).attr("y", i * 22 + 11).attr("fill", "#1f2937").attr("font-size", "11px").attr("font-family", "Georgia, serif").text(label);
+    // Legend (bottom center, below chart)
+    const legendG = svg.append("g").attr("transform", `translate(${vw / 2 - 80},${vh - marginBottom + 8})`);
+    [[COLOR_GAIN, "Net gain (immigration)"], [COLOR_LOSS, "Net loss (emigration)"]].forEach(([color, label], i) => {
+      legendG.append("rect").attr("x", i * 180).attr("y", 0).attr("width", 14).attr("height", 14).attr("fill", color).attr("rx", 3).attr("opacity", 0.85);
+      legendG.append("text").attr("x", i * 180 + 20).attr("y", 11).attr("fill", "#1f2937").attr("font-size", "11px").attr("font-family", "Georgia, serif").text(label);
     });
 
     // Update summary

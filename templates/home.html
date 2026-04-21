@@ -154,14 +154,72 @@
         <h2>Choose A Visualization</h2>
       </div>
     </div>
-    <div class="panel-card story-dropdown-card">
-      <select id="viz-sel" class="story-select">
-        <option value="" disabled selected>Select a visualization…</option>
-        {% for view in story_views %}
-          <option value="{{ url_for(view.endpoint) }}">{{ view.title }}</option>
-        {% endfor %}
-      </select>
-      <button class="story-go-btn" onclick="var v=document.getElementById('viz-sel').value;if(v)window.location.href=v;">Open</button>
+
+    <div class="viz-card-grid">
+      {# Sankey #}
+      <a class="viz-nav-card" href="{{ url_for('sankey_view') }}">
+        <div class="viz-preview">
+          <svg viewBox="0 0 260 110" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="18" width="14" height="32" rx="2" fill="#6366f1" opacity="0.85"/>
+            <rect x="10" y="56" width="14" height="20" rx="2" fill="#0ea5e9" opacity="0.85"/>
+            <rect x="10" y="82" width="14" height="14" rx="2" fill="#10b981" opacity="0.85"/>
+            <rect x="236" y="14" width="14" height="44" rx="2" fill="#6366f1" opacity="0.6"/>
+            <rect x="236" y="64" width="14" height="26" rx="2" fill="#0ea5e9" opacity="0.6"/>
+            <path d="M24,34 C120,34 140,36 236,36" fill="none" stroke="#6366f1" stroke-width="22" opacity="0.3"/>
+            <path d="M24,66 C100,66 140,50 236,50" fill="none" stroke="#0ea5e9" stroke-width="12" opacity="0.3"/>
+            <path d="M24,89 C100,89 140,76 236,82" fill="none" stroke="#10b981" stroke-width="8" opacity="0.3"/>
+          </svg>
+        </div>
+        <span class="viz-card-label">Flow Diagram</span>
+        <h3>Sankey Explorer</h3>
+        <p>Visualize bilateral migration corridors between continents and countries across time.</p>
+        <span class="viz-card-arrow">Explore →</span>
+      </a>
+
+      {# Choropleth #}
+      <a class="viz-nav-card" href="{{ url_for('choropleth_view') }}">
+        <div class="viz-preview">
+          <svg viewBox="0 0 260 110" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="260" height="110" rx="10" fill="#dbeafe"/>
+            <ellipse cx="130" cy="55" rx="120" ry="45" fill="#bfdbfe"/>
+            <rect x="30" y="30" width="60" height="40" rx="4" fill="#2563eb" opacity="0.7"/>
+            <rect x="100" y="20" width="50" height="55" rx="4" fill="#1d4ed8" opacity="0.85"/>
+            <rect x="160" y="38" width="65" height="30" rx="4" fill="#3b82f6" opacity="0.5"/>
+            <rect x="80" y="72" width="40" height="18" rx="4" fill="#60a5fa" opacity="0.6"/>
+            <rect x="130" y="70" width="30" height="18" rx="4" fill="#93c5fd" opacity="0.4"/>
+          </svg>
+        </div>
+        <span class="viz-card-label">World Map</span>
+        <h3>Choropleth Map</h3>
+        <p>See migration density across the globe — colored by inflow or outflow with year &amp; gender filters.</p>
+        <span class="viz-card-arrow">Explore →</span>
+      </a>
+
+      {# Net Flow #}
+      <a class="viz-nav-card" href="{{ url_for('netflow_view') }}">
+        <div class="viz-preview">
+          <svg viewBox="0 0 260 110" xmlns="http://www.w3.org/2000/svg">
+            <line x1="130" y1="8" x2="130" y2="102" stroke="rgba(31,41,55,0.2)" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <rect x="130" y="18" width="90" height="14" rx="3" fill="#059669" opacity="0.82"/>
+            <rect x="130" y="38" width="65" height="14" rx="3" fill="#059669" opacity="0.82"/>
+            <rect x="75" y="58" width="55" height="14" rx="3" fill="#dc2626" opacity="0.82"/>
+            <rect x="55" y="78" width="75" height="14" rx="3" fill="#dc2626" opacity="0.82"/>
+          </svg>
+        </div>
+        <span class="viz-card-label">Balance Chart</span>
+        <h3>Net Migration Balance</h3>
+        <p>Compare top net gainers vs losers — filter by region and sort by magnitude or direction.</p>
+        <span class="viz-card-arrow">Explore →</span>
+      </a>
+    </div>
+
+    {# Dashboard combined view banner #}
+    <div class="dashboard-banner">
+      <div class="dashboard-banner-text">
+        <h3>Combined Dashboard</h3>
+        <p>All three visualizations in one linked, coordinated view — selections sync across charts.</p>
+      </div>
+      <a class="dashboard-btn" href="{{ url_for('dashboard_view') }}">Open Dashboard →</a>
     </div>
   </section>
 {% endblock %}

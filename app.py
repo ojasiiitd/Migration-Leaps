@@ -300,6 +300,8 @@ def build_sankey_payload() -> dict:
                 "origin_continents": country_continents[source],
                 "destination_continents": country_continents[target],
                 "values": values,
+                "values_males": {year: row[f"{year}_males"] for year in YEARS},
+                "values_females": {year: row[f"{year}_females"] for year in YEARS},
             }
         )
 
@@ -316,6 +318,8 @@ def build_sankey_payload() -> dict:
 def build_choropleth_payload() -> dict:
     rows = load_rows()
     result: dict[str, dict] = {}
+    # Track top partners: {country: {year: {partner: {inflow, outflow}}}}
+    partners: dict[str, dict[str, dict[str, dict]]] = {}
 
     for row in rows:
         origin = row[ORIGIN_COL]
@@ -335,9 +339,39 @@ def build_choropleth_payload() -> dict:
             result[key_d]["inflow_males"] += row[f"{year}_males"]
             result[key_d]["inflow_females"] += row[f"{year}_females"]
 
+            val = row[f"{year}_total"]
+            if val == 0:
+                continue
+            # origin sends to dest -> origin's top inflow partner is dest, dest's top outflow partner is origin
+            # For origin (as source): top destinations by outflow
+            partners.setdefault(origin, {}).setdefault(year, {}).setdefault(dest, {"outflow": 0, "inflow": 0})
+            partners[origin][year][dest]["outflow"] += val
+            # For dest (as destination): top origins by inflow
+            partners.setdefault(dest, {}).setdefault(year, {}).setdefault(origin, {"outflow": 0, "inflow": 0})
+            partners[dest][year][origin]["inflow"] += val
+
+    # Build top-5 partners per country per year
+    top_partners: dict[str, dict[str, list]] = {}
+    for country, years_data in partners.items():
+        top_partners[country] = {}
+        for year, partner_data in years_data.items():
+            inflow_top = sorted(
+                [(p, v["inflow"]) for p, v in partner_data.items() if v["inflow"] > 0],
+                key=lambda x: x[1], reverse=True
+            )[:5]
+            outflow_top = sorted(
+                [(p, v["outflow"]) for p, v in partner_data.items() if v["outflow"] > 0],
+                key=lambda x: x[1], reverse=True
+            )[:5]
+            top_partners[country][year] = {
+                "inflow": [{"country": display_name(p), "value": v} for p, v in inflow_top],
+                "outflow": [{"country": display_name(p), "value": v} for p, v in outflow_top],
+            }
+
     return {
         "years": YEARS,
         "records": list(result.values()),
+        "top_partners": top_partners,
     }
 
 
@@ -365,18 +399,20 @@ def build_netflow_payload() -> dict:
 
     records = []
     for country, years_data in data.items():
-        region = country_to_continent.get(country, "Other")
+        # Cross-continent countries get multiple region entries
+        regions = CROSS_CONTINENT.get(country, [country_to_continent.get(country, "Other")])
         for year, vals in years_data.items():
             net = vals["inflow"] - vals["outflow"]
-            records.append({
-                "country": display_name(country),
-                "country_raw": country,
-                "year": year,
-                "region": region,
-                "inflow": vals["inflow"],
-                "outflow": vals["outflow"],
-                "net": net,
-            })
+            for region in regions:
+                records.append({
+                    "country": display_name(country),
+                    "country_raw": country,
+                    "year": year,
+                    "region": region,
+                    "inflow": vals["inflow"],
+                    "outflow": vals["outflow"],
+                    "net": net,
+                })
 
     return {
         "years": YEARS,
@@ -392,6 +428,7 @@ def inject_navigation():
             {"label": "Sankey Explorer", "endpoint": "sankey_view"},
             {"label": "Choropleth Map", "endpoint": "choropleth_view"},
             {"label": "Net Migration", "endpoint": "netflow_view"},
+            {"label": "Dashboard", "endpoint": "dashboard_view"},
         ]
     }
 
@@ -512,6 +549,11 @@ def choropleth_view():
 @app.route("/views/netflow")
 def netflow_view():
     return render_template("netflow.html", body_class="netflow-page")
+
+
+@app.route("/views/dashboard")
+def dashboard_view():
+    return render_template("dashboard.html", body_class="dashboard-page")
 
 
 @app.route("/api/sankey-data")
