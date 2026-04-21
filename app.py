@@ -420,6 +420,134 @@ def build_netflow_payload() -> dict:
     }
 
 
+@lru_cache(maxsize=1)
+def build_diverging_bar_payload() -> dict:
+    rows = load_rows()
+    # Aggregate by country as destination: total males/females received
+    dest_data: dict[str, dict[str, dict[str, int]]] = {}
+    for row in rows:
+        dest = row[DEST_COL]
+        label = display_name(dest)
+        if label not in dest_data:
+            dest_data[label] = {y: {"males": 0, "females": 0} for y in YEARS}
+        for year in YEARS:
+            dest_data[label][year]["males"] += row[f"{year}_males"]
+            dest_data[label][year]["females"] += row[f"{year}_females"]
+
+    records = []
+    for country, years_data in dest_data.items():
+        for year, vals in years_data.items():
+            total = vals["males"] + vals["females"]
+            if total == 0:
+                continue
+            records.append({
+                "country": country,
+                "year": year,
+                "males": vals["males"],
+                "females": vals["females"],
+                "total": total,
+                "gap": abs(vals["males"] - vals["females"]),
+                "female_ratio": vals["females"] / total if total else 0,
+            })
+
+    return {"years": YEARS, "records": records}
+
+
+@lru_cache(maxsize=1)
+def build_chord_payload() -> dict:
+    rows = load_rows()
+    # Build all-country lookup sets
+    country_label: dict[str, str] = {}
+    for row in rows:
+        country_label[row[ORIGIN_COL]] = display_name(row[ORIGIN_COL])
+        country_label[row[DEST_COL]] = display_name(row[DEST_COL])
+
+    # Build continent→country map for coloring
+    country_to_continent: dict[str, str] = {}
+    for continent, countries in CONTINENT_COUNTRIES.items():
+        for c in countries:
+            lbl = display_name(c)
+            if lbl not in country_to_continent:
+                country_to_continent[lbl] = continent
+
+    # For each year, build corridor list with volume
+    corridors_by_year: dict[str, list[dict]] = {y: [] for y in YEARS}
+    for row in rows:
+        src_lbl = display_name(row[ORIGIN_COL])
+        tgt_lbl = display_name(row[DEST_COL])
+        if src_lbl == tgt_lbl:
+            continue
+        for year in YEARS:
+            val = row[f"{year}_total"]
+            if val > 0:
+                corridors_by_year[year].append({
+                    "source": src_lbl,
+                    "target": tgt_lbl,
+                    "value": val,
+                })
+
+    return {
+        "years": YEARS,
+        "corridors_by_year": corridors_by_year,
+        "country_to_continent": country_to_continent,
+    }
+
+
+@lru_cache(maxsize=1)
+def build_streamgraph_payload() -> dict:
+    rows = load_rows()
+
+    # Outflow: for each origin, aggregate by destination
+    # Inflow: for each destination, aggregate by origin
+    outflow: dict[str, dict[str, dict[str, int]]] = {}  # origin → dest → year → total
+    inflow: dict[str, dict[str, dict[str, int]]] = {}   # dest → origin → year → total
+
+    for row in rows:
+        src = display_name(row[ORIGIN_COL])
+        tgt = display_name(row[DEST_COL])
+        if src == tgt:
+            continue
+        for year in YEARS:
+            val = row[f"{year}_total"]
+            if val == 0:
+                continue
+            outflow.setdefault(src, {}).setdefault(tgt, {y: 0 for y in YEARS})
+            outflow[src][tgt][year] += val
+            inflow.setdefault(tgt, {}).setdefault(src, {y: 0 for y in YEARS})
+            inflow[tgt][src][year] += val
+
+    # Flatten to records
+    outflow_records = []
+    for origin, dests in outflow.items():
+        for dest, years_data in dests.items():
+            outflow_records.append({
+                "country": origin,
+                "partner": dest,
+                "values": years_data,
+            })
+
+    inflow_records = []
+    for dest, origins in inflow.items():
+        for origin, years_data in origins.items():
+            inflow_records.append({
+                "country": dest,
+                "partner": origin,
+                "values": years_data,
+            })
+
+    # All unique country names
+    all_countries = sorted(set(
+        list(outflow.keys()) + list(inflow.keys())
+    ))
+
+    return {
+        "years": YEARS,
+        "outflow_records": outflow_records,
+        "inflow_records": inflow_records,
+        "countries": all_countries,
+    }
+
+
 @app.context_processor
 def inject_navigation():
     return {
@@ -428,6 +556,9 @@ def inject_navigation():
             {"label": "Sankey Explorer", "endpoint": "sankey_view"},
             {"label": "Choropleth Map", "endpoint": "choropleth_view"},
             {"label": "Net Migration", "endpoint": "netflow_view"},
+            {"label": "Diverging Bar", "endpoint": "diverging_bar_view"},
+            {"label": "Chord Diagram", "endpoint": "chord_view"},
+            {"label": "Streamgraph", "endpoint": "streamgraph_view"},
             {"label": "Dashboard", "endpoint": "dashboard_view"},
         ]
     }
@@ -556,6 +687,21 @@ def dashboard_view():
     return render_template("dashboard.html", body_class="dashboard-page")
 
 
+@app.route("/views/diverging-bar")
+def diverging_bar_view():
+    return render_template("diverging_bar.html", body_class="diverging-bar-page")
+
+
+@app.route("/views/chord")
+def chord_view():
+    return render_template("chord.html", body_class="chord-page")
+
+
+@app.route("/views/streamgraph")
+def streamgraph_view():
+    return render_template("streamgraph.html", body_class="streamgraph-page")
+
+
 @app.route("/api/sankey-data")
 def sankey_data():
     return jsonify(build_sankey_payload())
@@ -569,6 +715,21 @@ def choropleth_data():
 @app.route("/api/netflow-data")
 def netflow_data():
     return jsonify(build_netflow_payload())
+
+
+@app.route("/api/diverging-bar-data")
+def diverging_bar_data():
+    return jsonify(build_diverging_bar_payload())
+
+
+@app.route("/api/chord-data")
+def chord_data():
+    return jsonify(build_chord_payload())
+
+
+@app.route("/api/streamgraph-data")
+def streamgraph_data():
+    return jsonify(build_streamgraph_payload())
 
 
 if __name__ == "__main__":

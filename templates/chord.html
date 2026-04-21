@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Migration Atlas | Chord Diagram{% endblock %}
+
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div class="hero-card">
+      <span class="eyebrow">Story View 05</span>
+      <h1>Top Corridors Chord Diagram</h1>
+      <p class="hero-subtitle">
+        Countries arranged in a ring — ribbons inside connect origin to destination, with thickness proportional to migrant volume. Hover to spotlight flows; the slider controls how many top corridors are shown.
+      </p>
+    </div>
+  </section>
+
+  <section class="story-layout" id="chord-app" data-endpoint="{{ url_for('chord_data') }}">
+    <section class="panel-card viz-card" style="padding-bottom:20px;">
+      <div class="viz-header">
+        <div class="viz-label">
+          <strong id="chart-title">Migration Corridors — Chord View</strong>
+          <span id="chart-subtitle">Ribbons connect origin → destination</span>
+        </div>
+        <div class="viz-summary" id="viz-summary">Loading…</div>
+        <div class="viz-label right">
+          <strong id="year-display">2024</strong>
+          <span id="topn-display">Top 20 corridors</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;">
+        <svg id="chord-chart" viewBox="-500 -500 1000 1160" style="width:min(100%,700px);height:auto;" aria-label="Chord diagram of top migration corridors"></svg>
+      </div>
+    </section>
+
+    <section class="controls-grid" style="grid-template-columns: repeat(2, minmax(200px,1fr));">
+      <div class="panel-card">
+        <div class="control-title">Year</div>
+        <div class="slider-row">
+          <input id="year-slider" type="range" min="0" max="7" step="1" value="7">
+          <div class="value-chip" id="year-chip">2024</div>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Top N Corridors</div>
+        <div class="slider-row">
+          <input id="topn-slider" type="range" min="5" max="30" step="5" value="20">
+          <div class="value-chip" id="topn-chip">20</div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <div class="tooltip" id="tooltip"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/chord.js') }}"></script>
+{% endblock %}

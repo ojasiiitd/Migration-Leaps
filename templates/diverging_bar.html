@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Migration Atlas | Diverging Bar Chart{% endblock %}
+
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div class="hero-card">
+      <span class="eyebrow">Story View 04</span>
+      <h1>Gender Diverging Bar</h1>
+      <p class="hero-subtitle">
+        Male vs. female migrant stock per destination country — bars diverge left (male) and right (female) from a centered axis, revealing gender imbalances across the world's top receiving nations.
+      </p>
+    </div>
+  </section>
+
+  <section class="story-layout" id="divbar-app" data-endpoint="{{ url_for('diverging_bar_data') }}">
+    <section class="panel-card viz-card">
+      <div class="viz-header">
+        <div class="viz-label">
+          <strong id="chart-title">Male vs. Female Migrants by Country</strong>
+          <span id="chart-subtitle">Horizontal bars — left = male, right = female</span>
+        </div>
+        <div class="viz-summary" id="viz-summary">Loading…</div>
+        <div class="viz-label right">
+          <strong id="year-display">2024</strong>
+          <span id="sort-display">Sorted by total</span>
+        </div>
+      </div>
+      <svg id="divbar-chart" viewBox="0 0 1200 680" style="width:100%;height:auto;" aria-label="Diverging bar chart: male vs female migrants"></svg>
+    </section>
+
+    <section class="controls-grid" style="grid-template-columns: repeat(3, minmax(200px,1fr));">
+      <div class="panel-card">
+        <div class="control-title">Year</div>
+        <div class="slider-row">
+          <input id="year-slider" type="range" min="0" max="7" step="1" value="7">
+          <div class="value-chip" id="year-chip">2024</div>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Sort By</div>
+        <div class="chip-group-row">
+          <button class="sort-chip active" data-sort="total">Total</button>
+          <button class="sort-chip" data-sort="gap">Gender Gap</button>
+          <button class="sort-chip" data-sort="female_ratio">Female Ratio</button>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Top Countries</div>
+        <div class="slider-row">
+          <input id="topn-slider" type="range" min="10" max="50" step="5" value="30">
+          <div class="value-chip" id="topn-chip">30</div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <div class="tooltip" id="tooltip"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/diverging_bar.js') }}"></script>
+{% endblock %}

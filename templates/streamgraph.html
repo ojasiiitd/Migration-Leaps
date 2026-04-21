@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Migration Atlas | Streamgraph{% endblock %}
+
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  <section class="page-header">
+    <div class="hero-card">
+      <span class="eyebrow">Story View 06</span>
+      <h1>Migration Streamgraph</h1>
+      <p class="hero-subtitle">
+        A flowing river of colored bands — switch between <strong>Outflow</strong> (where does a country's population go?) and <strong>Inflow</strong> (where do a destination's migrants come from?). Each band is a partner country, its width proportional to migrant volume over time.
+      </p>
+    </div>
+  </section>
+
+  <section class="story-layout" id="stream-app" data-endpoint="{{ url_for('streamgraph_data') }}">
+    <section class="panel-card viz-card">
+      <div class="viz-header">
+        <div class="viz-label">
+          <strong id="chart-title">Outflow from India</strong>
+          <span id="chart-subtitle">Bands = destination countries, width = migrant volume</span>
+        </div>
+        <div class="viz-summary" id="viz-summary">Loading…</div>
+        <div class="viz-label right">
+          <strong id="mode-display">Outflow</strong>
+          <span id="country-display">India</span>
+        </div>
+      </div>
+      <svg id="stream-chart" viewBox="0 0 1200 580" style="width:100%;height:auto;" aria-label="Migration streamgraph"></svg>
+    </section>
+
+    <section class="controls-grid" style="grid-template-columns: repeat(4, minmax(180px,1fr));">
+      <div class="panel-card">
+        <div class="control-title">Mode</div>
+        <div class="chip-group-row">
+          <button class="mode-chip active" data-mode="outflow">Outflow</button>
+          <button class="mode-chip" data-mode="inflow">Inflow</button>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Country</div>
+        <select id="country-select" class="region-select" style="margin-top:10px;"></select>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Top Partners</div>
+        <div class="slider-row">
+          <input id="topk-slider" type="range" min="3" max="20" step="1" value="10">
+          <div class="value-chip" id="topk-chip">10</div>
+        </div>
+      </div>
+      <div class="panel-card">
+        <div class="control-title">Value</div>
+        <div class="chip-group-row">
+          <button class="pct-chip active" data-pct="absolute">Absolute</button>
+          <button class="pct-chip" data-pct="percent">% Share</button>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <div class="tooltip" id="tooltip"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/streamgraph.js') }}"></script>
+{% endblock %}
