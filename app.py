@@ -559,7 +559,8 @@ def inject_navigation():
             {"label": "Diverging Bar", "endpoint": "diverging_bar_view"},
             {"label": "Chord Diagram", "endpoint": "chord_view"},
             {"label": "Streamgraph", "endpoint": "streamgraph_view"},
-            {"label": "Dashboard", "endpoint": "dashboard_view"},
+            {"label": "Dashboard 1", "endpoint": "dashboard_view", "group": "dashboards"},
+            {"label": "Dashboard 2", "endpoint": "dashboard2_view", "group": "dashboards"},
         ]
     }
 
@@ -702,6 +703,11 @@ def streamgraph_view():
     return render_template("streamgraph.html", body_class="streamgraph-page")
 
 
+@app.route("/views/dashboard2")
+def dashboard2_view():
+    return render_template("dashboard2.html", body_class="dashboard2-page")
+
+
 @app.route("/api/sankey-data")
 def sankey_data():
     return jsonify(build_sankey_payload())
@@ -730,6 +736,37 @@ def chord_data():
 @app.route("/api/streamgraph-data")
 def streamgraph_data():
     return jsonify(build_streamgraph_payload())
+
+
+@lru_cache(maxsize=1)
+def build_dashboard2_payload() -> dict:
+    bar = build_diverging_bar_payload()
+    chord = build_chord_payload()
+    stream = build_streamgraph_payload()
+
+    # Find top country by 2024 outflow for default selection
+    outflow_2024: dict[str, int] = {}
+    for rec in stream["outflow_records"]:
+        outflow_2024[rec["country"]] = outflow_2024.get(rec["country"], 0) + sum(
+            rec["values"].get(y, 0) for y in ["2024"]
+        )
+    top_country = max(outflow_2024, key=lambda c: outflow_2024[c]) if outflow_2024 else None
+
+    return {
+        "years": YEARS,
+        "bar_records": bar["records"],
+        "corridors_by_year": chord["corridors_by_year"],
+        "country_to_continent": chord["country_to_continent"],
+        "outflow_records": stream["outflow_records"],
+        "inflow_records": stream["inflow_records"],
+        "countries": stream["countries"],
+        "top_country": top_country,
+    }
+
+
+@app.route("/api/dashboard2-data")
+def dashboard2_data():
+    return jsonify(build_dashboard2_payload())
 
 
 if __name__ == "__main__":

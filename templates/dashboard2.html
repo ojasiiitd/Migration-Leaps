@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Migration Atlas | Dashboard 2{% endblock %}
+
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard2.css') }}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-header" style="padding-bottom:12px;">
+    <div class="hero-card" style="padding:20px 28px;">
+      <span class="eyebrow">Dashboard 2 — Gender · Corridors · Time</span>
+      <h1 style="font-size:clamp(1.6rem,3vw,2.8rem);">Migration Lens</h1>
+      <p class="hero-subtitle" style="margin-top:8px;font-size:0.95rem;">
+        Click a country in the bar chart to trace gender splits, top corridors, and temporal evolution in one view.
+      </p>
+    </div>
+  </section>
+
+  {# ── Global controls ── #}
+  <div class="db-global-controls panel-card d2-controls"
+       id="d2-app"
+       data-endpoint="{{ url_for('dashboard2_data') }}">
+
+    <div class="db-controls-row">
+      <div class="db-control-group">
+        <span class="db-ctrl-label">Year</span>
+        <div class="slider-row">
+          <input id="d2-year-slider" type="range" min="0" max="7" step="1" value="6">
+          <div class="value-chip" id="d2-year-chip">2020</div>
+        </div>
+      </div>
+
+      <div class="db-control-group">
+        <span class="db-ctrl-label">Top-K Countries</span>
+        <div class="slider-row">
+          <input id="d2-topk-slider" type="range" min="5" max="50" step="5" value="20">
+          <div class="value-chip" id="d2-topk-chip">20</div>
+        </div>
+      </div>
+
+      <div class="db-control-group">
+        <span class="db-ctrl-label">Metric</span>
+        <div class="chip-group-row">
+          <button class="metric-chip active" data-metric="absolute">Absolute</button>
+          <button class="metric-chip" data-metric="percent">% Share</button>
+        </div>
+      </div>
+
+      <div class="db-control-group">
+        <span class="db-ctrl-label">Flow Mode</span>
+        <div class="chip-group-row">
+          <button class="flow-chip active" data-flow="outflow">Outflow</button>
+          <button class="flow-chip" data-flow="inflow">Inflow</button>
+        </div>
+      </div>
+
+      <div class="db-control-group" style="min-width:180px;">
+        <span class="db-ctrl-label">Selected Country <span id="d2-sel-label" style="color:var(--muted);font-weight:normal;">(click bar)</span></span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="d2-country-chip" class="d2-country-chip d2-chip-empty">None</span>
+          <button id="d2-clear-btn" class="db-clear-btn" style="display:none;">✕</button>
+        </div>
+      </div>
+
+      <div class="db-control-group" style="min-width:200px;">
+        <span class="db-ctrl-label">Hovered Corridor</span>
+        <span id="d2-corridor-label" class="db-summary-line">—</span>
+      </div>
+    </div>
+  </div>
+
+  {# ── 3-panel layout ── #}
+  <div class="db-layout d2-layout">
+
+    {# Top row: Diverging Bar (left) + Chord (right) #}
+    <div class="d2-top-row">
+      <section class="panel-card db-panel d2-bar-panel">
+        <div class="db-panel-header">
+          <div>
+            <span class="eyebrow" style="margin-bottom:2px;">Gender Gap</span>
+            <strong class="db-panel-title">Who is Migrating?</strong>
+          </div>
+          <div id="d2-bar-summary" class="db-summary-line" style="margin-left:auto;text-align:right;"></div>
+        </div>
+        <svg id="d2-bar-chart" style="width:100%;overflow:visible;"></svg>
+      </section>
+
+      <section class="panel-card db-panel d2-chord-panel">
+        <div class="db-panel-header">
+          <div>
+            <span class="eyebrow" style="margin-bottom:2px;">Top Corridors</span>
+            <strong class="db-panel-title">Where Are the Strongest Routes?</strong>
+          </div>
+          <div id="d2-chord-summary" class="db-summary-line" style="margin-left:auto;text-align:right;"></div>
+        </div>
+        <svg id="d2-chord-chart" style="width:100%;overflow:visible;"></svg>
+      </section>
+    </div>
+
+    {# Bottom: Streamgraph full width #}
+    <section class="panel-card db-panel d2-stream-panel">
+      <div class="db-panel-header">
+        <div>
+          <span class="eyebrow" style="margin-bottom:2px;">Temporal Evolution</span>
+          <strong class="db-panel-title" id="d2-stream-title">How Does It Change Over Time?</strong>
+        </div>
+        <div id="d2-stream-summary" class="db-summary-line" style="margin-left:auto;text-align:right;"></div>
+      </div>
+      <div id="d2-brush-info" class="db-summary-line" style="padding-bottom:4px;font-size:0.78rem;color:var(--accent);">Drag the stream to filter time range</div>
+      <svg id="d2-stream-chart" style="width:100%;overflow:visible;"></svg>
+    </section>
+  </div>
+
+  <div class="tooltip" id="d2-tooltip"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/dashboard2.js') }}"></script>
+{% endblock %}

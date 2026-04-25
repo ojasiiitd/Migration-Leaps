@@ -18,9 +18,22 @@
           </span>
         </a>
         <div class="nav-links">
-          {% for item in nav_views %}
+          {# Separate dashboard items from plain nav items #}
+          {% set dash_items = nav_views | selectattr("group", "equalto", "dashboards") | list %}
+          {% set plain_items = nav_views | rejectattr("group", "equalto", "dashboards") | list %}
+          {% for item in plain_items %}
             <a href="{{ url_for(item.endpoint) }}">{{ item.label }}</a>
           {% endfor %}
+          {% if dash_items %}
+            <div class="nav-pill-group">
+              <span class="nav-pill-label">Dashboards</span>
+              <div class="nav-pill-items">
+                {% for item in dash_items %}
+                  <a href="{{ url_for(item.endpoint) }}">{{ item.label }}</a>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
         </div>
       </nav>
     </header>

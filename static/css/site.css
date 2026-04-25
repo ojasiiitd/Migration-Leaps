@@ -94,6 +94,44 @@ a {
   color: var(--ink);
 }
 
+/* Dashboard pill group in nav */
+.nav-pill-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.nav-pill-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 0 4px;
+  opacity: 0.8;
+}
+
+.nav-pill-items {
+  display: flex;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(31, 41, 55, 0.1);
+  border-radius: 999px;
+  padding: 2px 4px;
+}
+
+.nav-pill-items a {
+  color: var(--muted);
+  font-size: 0.88rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+.nav-pill-items a:hover {
+  background: rgba(15, 118, 110, 0.12);
+  color: var(--accent);
+}
+
 .hero-panel,
 .page-header {
   padding: 10px 0 20px;
