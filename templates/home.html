@@ -18,13 +18,27 @@
 
   <section class="home-grid">
     <article class="panel-card panel-copy">
-      {% for paragraph in dataset_overview %}
-        {% if loop.first %}
-          <h2>{{ paragraph }}</h2>
-        {% else %}
-          <p>{{ paragraph }}</p>
-        {% endif %}
-      {% endfor %}
+      <span class="eyebrow">United Nations · Population Division</span>
+      <h2>{{ dataset_overview[0] }}</h2>
+
+      <div class="overview-kpi-row">
+        <div class="overview-kpi">
+          <strong>233</strong>
+          <span>countries &amp; areas</span>
+        </div>
+        <div class="overview-kpi">
+          <strong>1990–2024</strong>
+          <span>time coverage</span>
+        </div>
+        <div class="overview-kpi">
+          <strong>60</strong>
+          <span>fully reassessed in 2024</span>
+        </div>
+      </div>
+
+      <p class="overview-lead">{{ dataset_overview[1] }}</p>
+      <p>{{ dataset_overview[2] }}</p>
+
     </article>
 
     <aside class="panel-card panel-stats">
@@ -303,7 +317,7 @@
         </div>
       </a>
 
-      {# ── Dashboard (wide card) ── #}
+      {# ── Dashboard 1 (wide card) ── #}
       <a class="viz-nav-card-home viz-nav-card-dashboard" href="{{ url_for('dashboard_view') }}">
         <div class="viz-preview-home">
           <svg viewBox="0 0 520 120" xmlns="http://www.w3.org/2000/svg">
@@ -319,7 +333,6 @@
             <path d="M18,77 C80,77 90,66 150,70" fill="none" stroke="#10b981" stroke-width="7"  opacity="0.18"/>
             <!-- Mini Choropleth centre panel -->
             <rect x="176" y="0" width="168" height="120" rx="0" fill="rgba(37,99,235,0.04)"/>
-            <rect x="176" y="0" width="168" height="120" rx="0" fill="none"/>
             <ellipse cx="260" cy="60" rx="76" ry="44" fill="#dbeafe" opacity="0.6"/>
             <rect x="196" y="36" width="36" height="30" rx="3" fill="#2563eb" opacity="0.55"/>
             <rect x="240" y="24" width="32" height="42" rx="3" fill="#1d4ed8" opacity="0.65"/>
@@ -338,10 +351,55 @@
           </svg>
         </div>
         <div class="viz-card-body-home">
-          <span class="viz-card-label" style="color:var(--accent);">Combined View</span>
-          <h3>Linked Dashboard</h3>
-          <p>Sankey + Choropleth + Net Migration in one coordinated view — click any country to highlight it across all panels simultaneously.</p>
+          <span class="viz-card-label" style="color:var(--accent);">Dashboard 1 — Linked View</span>
+          <h3>Sankey · Choropleth · Net Migration</h3>
+          <p>Three coordinated panels in one view — click any country to highlight it across Sankey, Choropleth, and Net Migration simultaneously.</p>
           <span class="viz-card-arrow" style="background:var(--accent);color:#fff;border-color:var(--accent);">Open Dashboard →</span>
+        </div>
+      </a>
+
+      {# ── Dashboard 2 (wide card) ── #}
+      <a class="viz-nav-card-home viz-nav-card-dashboard viz-nav-card-dashboard2" href="{{ url_for('dashboard2_view') }}">
+        <div class="viz-preview-home">
+          <svg viewBox="0 0 520 120" xmlns="http://www.w3.org/2000/svg">
+            <!-- Mini diverging bar left -->
+            <rect x="0" y="0" width="168" height="120" rx="0" fill="rgba(244,114,182,0.04)"/>
+            <line x1="84" y1="8" x2="84" y2="112" stroke="rgba(31,41,55,0.15)" stroke-width="1.2" stroke-dasharray="3,2"/>
+            <rect x="28" y="16" width="56" height="11" rx="2" fill="#3b82f6" opacity="0.8"/>
+            <rect x="84" y="16" width="46" height="11" rx="2" fill="#f472b6" opacity="0.8"/>
+            <rect x="38" y="33" width="46" height="11" rx="2" fill="#3b82f6" opacity="0.8"/>
+            <rect x="84" y="33" width="60" height="11" rx="2" fill="#f472b6" opacity="0.8"/>
+            <rect x="44" y="50" width="40" height="11" rx="2" fill="#3b82f6" opacity="0.8"/>
+            <rect x="84" y="50" width="52" height="11" rx="2" fill="#f472b6" opacity="0.8"/>
+            <rect x="52" y="67" width="32" height="11" rx="2" fill="#3b82f6" opacity="0.8"/>
+            <rect x="84" y="67" width="38" height="11" rx="2" fill="#f472b6" opacity="0.8"/>
+            <!-- Mini chord centre -->
+            <rect x="176" y="0" width="168" height="120" rx="0" fill="rgba(99,102,241,0.04)"/>
+            <g transform="translate(260,60)">
+              <path d="M0,-46 A46,46 0 0,1 38,24" fill="none" stroke="#6366f1" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
+              <path d="M38,24 A46,46 0 0,1 -22,40" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+              <path d="M-22,40 A46,46 0 0,1 -42,-14" fill="none" stroke="#10b981" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+              <path d="M-42,-14 A46,46 0 0,1 0,-46" fill="none" stroke="#f43f5e" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
+              <path d="M0,-40 Q0,0 34,20 Q16,8 0,-40Z" fill="#6366f1" opacity="0.22"/>
+              <path d="M34,20 Q0,0 -20,36 Q8,18 34,20Z" fill="#f59e0b" opacity="0.22"/>
+              <path d="M-20,36 Q0,0 -36,-12 Q-18,8 -20,36Z" fill="#10b981" opacity="0.22"/>
+            </g>
+            <!-- Mini streamgraph right -->
+            <rect x="352" y="0" width="168" height="120" rx="0" fill="rgba(168,85,247,0.04)"/>
+            <path d="M352,60 C390,54 420,44 470,42 C510,40 530,44 520,46 L520,56 C510,54 480,50 470,52 C420,54 390,66 352,72Z" fill="#6366f1" opacity="0.7"/>
+            <path d="M352,72 C390,66 420,54 470,52 C510,50 530,54 520,56 L520,68 C510,66 480,62 470,64 C420,66 390,74 352,80Z" fill="#f59e0b" opacity="0.7"/>
+            <path d="M352,44 C390,40 420,32 470,28 C510,24 530,28 520,32 L520,42 C510,40 480,34 470,36 C420,38 390,48 352,56Z" fill="#0ea5e9" opacity="0.7"/>
+            <path d="M352,80 C390,74 420,66 470,64 C510,62 530,66 520,68 L520,80 C510,78 480,76 470,76 C420,76 390,82 352,88Z" fill="#10b981" opacity="0.7"/>
+            <!-- dividers -->
+            <line x1="172" y1="10" x2="172" y2="110" stroke="rgba(31,41,55,0.1)" stroke-width="1"/>
+            <line x1="348" y1="10" x2="348" y2="110" stroke="rgba(31,41,55,0.1)" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="viz-card-body-home">
+          <span class="viz-card-label" style="color:#7c3aed;">Dashboard 2 — Gender · Corridors · Time</span>
+          <h3>Diverging Bar · Chord · Streamgraph</h3>
+          <p>Click a country in the bar chart to trace gender splits, top corridors, and temporal evolution across three linked panels.</p>
+          <span class="viz-card-arrow" style="background:#7c3aed;color:#fff;border-color:#7c3aed;">Open Dashboard →</span>
         </div>
       </a>
 

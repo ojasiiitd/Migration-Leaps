@@ -18,22 +18,40 @@
           </span>
         </a>
         <div class="nav-links">
-          {# Separate dashboard items from plain nav items #}
+          {# Separate items by group #}
           {% set dash_items = nav_views | selectattr("group", "equalto", "dashboards") | list %}
-          {% set plain_items = nav_views | rejectattr("group", "equalto", "dashboards") | list %}
-          {% for item in plain_items %}
-            <a href="{{ url_for(item.endpoint) }}">{{ item.label }}</a>
-          {% endfor %}
-          {% if dash_items %}
-            <div class="nav-pill-group">
-              <span class="nav-pill-label">Dashboards</span>
-              <div class="nav-pill-items">
-                {% for item in dash_items %}
-                  <a href="{{ url_for(item.endpoint) }}">{{ item.label }}</a>
-                {% endfor %}
+          {% set viz_items  = nav_views | selectattr("group", "equalto", "viz") | list %}
+
+          {# Visualizations dropdown: first 3 then next 3 #}
+          {% if viz_items | length > 0 %}
+            <div class="nav-dropdown">
+              <button class="nav-dropdown-trigger">
+                Visualizations <span class="nav-dropdown-arrow">▾</span>
+              </button>
+              <div class="nav-dropdown-menu">
+                <div class="nav-dropdown-group">
+                  <span class="nav-dropdown-group-label">Views I</span>
+                  {% for item in viz_items[:3] %}
+                    <a class="nav-dropdown-item" href="{{ url_for(item.endpoint) }}">{{ item.label }}</a>
+                  {% endfor %}
+                </div>
+                {% if viz_items | length > 3 %}
+                  <div class="nav-dropdown-divider"></div>
+                  <div class="nav-dropdown-group">
+                    <span class="nav-dropdown-group-label">Views II</span>
+                    {% for item in viz_items[3:] %}
+                      <a class="nav-dropdown-item" href="{{ url_for(item.endpoint) }}">{{ item.label }}</a>
+                    {% endfor %}
+                  </div>
+                {% endif %}
               </div>
             </div>
           {% endif %}
+
+          {# Dashboard pills #}
+          {% for item in dash_items %}
+            <a class="nav-dashboard-pill" href="{{ url_for(item.endpoint) }}">{{ item.label }}</a>
+          {% endfor %}
         </div>
       </nav>
     </header>

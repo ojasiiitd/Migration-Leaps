@@ -552,14 +552,14 @@ def build_streamgraph_payload() -> dict:
 def inject_navigation():
     return {
         "nav_views": [
-            {"label": "Home", "endpoint": "home"},
-            {"label": "Sankey Explorer", "endpoint": "sankey_view"},
-            {"label": "Choropleth Map", "endpoint": "choropleth_view"},
-            {"label": "Net Migration", "endpoint": "netflow_view"},
-            {"label": "Diverging Bar", "endpoint": "diverging_bar_view"},
-            {"label": "Chord Diagram", "endpoint": "chord_view"},
-            {"label": "Streamgraph", "endpoint": "streamgraph_view"},
-            {"label": "Dashboard 1", "endpoint": "dashboard_view", "group": "dashboards"},
+            {"label": "Home", "endpoint": "home", "group": "home"},
+            {"label": "Sankey Explorer",   "endpoint": "sankey_view",       "group": "viz"},
+            {"label": "Choropleth Map",    "endpoint": "choropleth_view",   "group": "viz"},
+            {"label": "Net Migration",     "endpoint": "netflow_view",      "group": "viz"},
+            {"label": "Diverging Bar",     "endpoint": "diverging_bar_view","group": "viz"},
+            {"label": "Chord Diagram",     "endpoint": "chord_view",        "group": "viz"},
+            {"label": "Streamgraph",       "endpoint": "streamgraph_view",  "group": "viz"},
+            {"label": "Dashboard 1", "endpoint": "dashboard_view",  "group": "dashboards"},
             {"label": "Dashboard 2", "endpoint": "dashboard2_view", "group": "dashboards"},
         ]
     }

@@ -56,16 +56,17 @@
       .attr("rx", 4)
       .attr("opacity", 0.82);
 
-    // Value labels on bars
+    // Value labels on bars — placed inside near bar top, white text
     g.append("g")
       .selectAll("text")
       .data(snapYears)
       .join("text")
       .attr("x", (d) => xScale(d.year) + xScale.bandwidth() / 2)
-      .attr("y", (d) => yLeft(d.migrants) - 6)
+      .attr("y", (d) => yLeft(d.migrants) + 14)
       .attr("text-anchor", "middle")
-      .attr("fill", "#374151")
-      .attr("font-size", "11px")
+      .attr("fill", "#fff")
+      .attr("font-size", "10.5px")
+      .attr("font-weight", "600")
       .attr("font-family", "Georgia, serif")
       .text((d) => `${(d.migrants / 1e6).toFixed(0)}M`);
 
@@ -95,17 +96,22 @@
       .attr("stroke", "#fff")
       .attr("stroke-width", 1.5);
 
-    // Pct labels on line
+    // Pct labels on line — alternate above/below to avoid crowding, white halo
+    const pctOffsets = snapYears.map((_, i) => (i % 2 === 0 ? -14 : 20));
     g.append("g")
       .selectAll("text")
       .data(snapYears)
       .join("text")
       .attr("x", (d) => xScale(d.year) + xScale.bandwidth() / 2)
-      .attr("y", (d) => yRight(d.pct) - 10)
+      .attr("y", (d, i) => yRight(d.pct) + pctOffsets[i])
       .attr("text-anchor", "middle")
       .attr("fill", "#166534")
       .attr("font-size", "10px")
       .attr("font-family", "Georgia, serif")
+      .attr("stroke", "rgba(255,255,255,0.85)")
+      .attr("stroke-width", 3)
+      .attr("stroke-linejoin", "round")
+      .attr("paint-order", "stroke")
       .text((d) => `${d.pct}%`);
 
     // X axis
